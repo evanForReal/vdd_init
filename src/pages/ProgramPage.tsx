@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { ORDERED_WEEKDAYS, WEEKDAY_LABELS, WEEKDAY_SHORT, todayISO, weekdayIndex, formatDateShort } from "../utils/date";
+import { ArtworkPanel } from "../components/ArtworkPanel";
+
+const SPARSE_DAY_THRESHOLD = 2;
 
 export function ProgramPage() {
   const {
@@ -29,6 +32,7 @@ export function ProgramPage() {
         <header className="program-header">
           <h1>New Mesocycle</h1>
         </header>
+        <ArtworkPanel seed={`new-meso-${startDate}`} variant="hero" minHeight="260px" />
         <div className="form">
           <label className="field-label">Name</label>
           <input
@@ -165,6 +169,10 @@ export function ProgramPage() {
           <button className="add-exercise-btn" onClick={() => setAdding(true)}>
             + Add Exercise
           </button>
+        )}
+
+        {exercises.length <= SPARSE_DAY_THRESHOLD && (
+          <ArtworkPanel seed={`program-day-${selectedWeekday}`} />
         )}
       </div>
     </div>

@@ -2,12 +2,15 @@ import { useState } from "react";
 import { useApp } from "../context/AppContext";
 import type { ExerciseTemplate } from "../types";
 import { ExerciseDetailSheet } from "../components/ExerciseDetailSheet";
+import { ArtworkPanel } from "../components/ArtworkPanel";
 import {
   daysBetween,
   formatDateLong,
   todayISO,
   weekdayIndex,
 } from "../utils/date";
+
+const SPARSE_DAY_THRESHOLD = 2;
 
 export function TodayPage() {
   const { activeMesocycle, getLogFor } = useApp();
@@ -25,6 +28,7 @@ export function TodayPage() {
           <h2>No active mesocycle</h2>
           <p>Head to the Program tab to set one up and build your weekly schedule.</p>
         </div>
+        <ArtworkPanel seed={`today-empty-${date}`} />
       </div>
     );
   }
@@ -54,9 +58,12 @@ export function TodayPage() {
       )}
 
       {exercises.length === 0 ? (
-        <div className="empty-state">
-          <p>No exercises scheduled for today.</p>
-        </div>
+        <>
+          <div className="empty-state">
+            <p>No exercises scheduled for today.</p>
+          </div>
+          <ArtworkPanel seed={`today-rest-${date}`} />
+        </>
       ) : (
         <div className="exercise-list">
           {exercises.map((ex) => {
@@ -81,6 +88,9 @@ export function TodayPage() {
               </button>
             );
           })}
+          {exercises.length <= SPARSE_DAY_THRESHOLD && (
+            <ArtworkPanel seed={`today-sparse-${date}`} />
+          )}
         </div>
       )}
 
