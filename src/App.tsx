@@ -1,20 +1,23 @@
 import { useState } from "react";
-import { AppProvider } from "./context/AppContext";
-import { TodayPage } from "./pages/TodayPage";
-import { ProgramPage } from "./pages/ProgramPage";
-import { BottomNav, type Tab } from "./components/BottomNav";
+import { Home } from "./Home";
+import { WorkoutApp } from "./WorkoutApp";
+import { NutritionApp } from "./nutrition/NutritionApp";
+
+type Mode = "home" | "workout" | "nutrition";
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>("today");
+  const [mode, setMode] = useState<Mode>("home");
 
+  if (mode === "workout") {
+    return <WorkoutApp onBack={() => setMode("home")} />;
+  }
+  if (mode === "nutrition") {
+    return <NutritionApp onBack={() => setMode("home")} />;
+  }
   return (
-    <AppProvider>
-      <div className="app-shell">
-        <main className="app-main">
-          {tab === "today" ? <TodayPage /> : <ProgramPage />}
-        </main>
-        <BottomNav active={tab} onChange={setTab} />
-      </div>
-    </AppProvider>
+    <Home
+      onEnterWorkout={() => setMode("workout")}
+      onEnterNutrition={() => setMode("nutrition")}
+    />
   );
 }
