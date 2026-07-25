@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useApp } from "../context/AppContext";
-import { ORDERED_WEEKDAYS, WEEKDAY_LABELS, WEEKDAY_SHORT, todayISO, weekdayIndex, formatDateShort } from "../utils/date";
+import { todayISO, formatDateShort } from "../utils/date";
+import { getCycleDay, CYCLE_DAY_LABELS } from "../utils/cycle";
+import type { CycleDay } from "../types";
 import { ArtworkPanel } from "../components/ArtworkPanel";
 
 const SPARSE_DAY_THRESHOLD = 2;
+const CYCLE_DAYS: CycleDay[] = ["u1", "l1", "u2", "l2"];
 
 export function ProgramPage() {
   const {
@@ -14,9 +17,7 @@ export function ProgramPage() {
     renameExercise,
   } = useApp();
 
-  const [selectedWeekday, setSelectedWeekday] = useState(
-    weekdayIndex(todayISO())
-  );
+  const [selectedDay, setSelectedDay] = useState<CycleDay>("u1");
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -47,7 +48,10 @@ export function ProgramPage() {
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
-          <p className="hint">runs 3 months</p>
+          <p className="hint">
+            runs 3 months, upper/lower/rest cycle (u1, l1, rest, u2, l2, rest)
+            starting from this date
+          </p>
           <button
             className="primary-btn"
             onClick={() => {
@@ -67,18 +71,19 @@ export function ProgramPage() {
     );
   }
 
-  const exercises = activeMesocycle.schedule[selectedWeekday] ?? [];
+  const exercises = activeMesocycle.schedule[selectedDay];
+  const todayCycleDay = getCycleDay(activeMesocycle, todayISO());
 
   function submitAdd() {
     const trimmed = newName.trim();
-    if (trimmed) addExercise(selectedWeekday, trimmed);
+    if (trimmed) addExercise(selectedDay, trimmed);
     setNewName("");
     setAdding(false);
   }
 
   function submitRename(exerciseId: string) {
     const trimmed = editingName.trim();
-    if (trimmed) renameExercise(selectedWeekday, exerciseId, trimmed);
+    if (trimmed) renameExercise(selectedDay, exerciseId, trimmed);
     setEditingId(null);
   }
 
@@ -95,7 +100,7 @@ export function ProgramPage() {
           onClick={() => {
             if (
               confirm(
-                "start a new mesocycle? clears the weekly schedule (past logs stay saved)."
+                "start a new mesocycle? clears the schedule (past logs stay saved)."
               )
             ) {
               setCreatingNew(true);
@@ -107,18 +112,19 @@ export function ProgramPage() {
       </header>
 
       <div className="weekday-tabs">
-        {ORDERED_WEEKDAYS.map((wd) => (
+        {CYCLE_DAYS.map((cd) => (
           <button
-            key={wd}
-            className={`weekday-tab ${wd === selectedWeekday ? "active" : ""}`}
-            onClick={() => setSelectedWeekday(wd)}
+            key={cd}
+            className={`weekday-tab ${cd === selectedDay ? "active" : ""}`}
+            onClick={() => setSelectedDay(cd)}
           >
-            {WEEKDAY_SHORT[wd]}
+            {cd}
+            {cd === todayCycleDay ? " •" : ""}
           </button>
         ))}
       </div>
 
-      <div className="day-label">{WEEKDAY_LABELS[selectedWeekday]}</div>
+      <div className="day-label">{CYCLE_DAY_LABELS[selectedDay]}</div>
 
       <div className="program-exercise-list">
         {exercises.map((ex) => (
@@ -145,7 +151,7 @@ export function ProgramPage() {
             )}
             <button
               className="icon-btn subtle"
-              onClick={() => removeExercise(selectedWeekday, ex.id)}
+              onClick={() => removeExercise(selectedDay, ex.id)}
               aria-label="Remove exercise"
             >
               ✕
@@ -172,7 +178,7 @@ export function ProgramPage() {
         )}
 
         {exercises.length <= SPARSE_DAY_THRESHOLD && (
-          <ArtworkPanel seed={`program-day-${selectedWeekday}`} />
+          <ArtworkPanel seed={`program-day-${selectedDay}`} />
         )}
       </div>
     </div>

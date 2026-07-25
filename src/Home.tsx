@@ -15,13 +15,13 @@ export function Home({
       </div>
       <div className="home-scrim" />
       <div className="home-content">
-        <h1 className="home-title">Lift Log</h1>
-        <div className="orb-row">
-          <button className="orb orb-workout" onClick={onEnterWorkout}>
-            <span className="orb-label">Workout</span>
+        <h1 className="home-title">the right tracking app</h1>
+        <div className="orb-column">
+          <button className="orb orb-m" onClick={onEnterWorkout}>
+            <span className="orb-label">m</span>
           </button>
-          <button className="orb orb-nutrition" onClick={onEnterNutrition}>
-            <span className="orb-label">Nutrition</span>
+          <button className="orb orb-n" onClick={onEnterNutrition}>
+            <span className="orb-label">n</span>
           </button>
         </div>
       </div>

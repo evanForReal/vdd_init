@@ -4,6 +4,7 @@ import { useNutrition } from "../context/NutritionContext";
 import { AddPhotoSheet } from "../components/AddPhotoSheet";
 import { PlusIcon } from "../components/Icons";
 import { ArtworkPanel } from "../../components/ArtworkPanel";
+import { Lightbox } from "../../components/Lightbox";
 import { formatDateLong } from "../../utils/date";
 
 const variants = {
@@ -49,6 +50,7 @@ export function GalleryPage() {
   const [[index, direction], setPage] = useState([photos.length - 1, 0]);
   const [exitVelocity, setExitVelocity] = useState(0);
   const [adding, setAdding] = useState(false);
+  const [viewingFull, setViewingFull] = useState(false);
 
   useEffect(() => {
     setPage(([i]) => [Math.min(i, photos.length - 1), 0]);
@@ -118,12 +120,16 @@ export function GalleryPage() {
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={1}
               onDragEnd={onDragEnd}
+              onTap={() => setViewingFull(true)}
             >
               {url && <img className="gallery-photo" src={url} alt={current.date} />}
               <div className="gallery-card-label">{formatDateLong(current.date)}</div>
               <button
                 className="icon-btn subtle gallery-remove-btn"
-                onClick={() => removePhoto(current.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removePhoto(current.id);
+                }}
                 aria-label="Delete photo"
               >
                 ✕
@@ -132,6 +138,15 @@ export function GalleryPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {viewingFull && url && current && (
+        <Lightbox
+          src={url}
+          alt={current.date}
+          caption={formatDateLong(current.date)}
+          onClose={() => setViewingFull(false)}
+        />
+      )}
 
       <div className="gallery-nav">
         <button

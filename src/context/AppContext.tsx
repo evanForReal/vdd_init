@@ -8,6 +8,7 @@ import {
 } from "react";
 import type {
   AppState,
+  CycleDay,
   ExerciseTemplate,
   Mesocycle,
   SessionLog,
@@ -24,9 +25,10 @@ interface AppContextValue {
   state: AppState;
   activeMesocycle: Mesocycle | null;
   createMesocycle: (name: string, startDate: string) => void;
-  addExercise: (weekday: number, name: string) => void;
-  removeExercise: (weekday: number, exerciseId: string) => void;
-  renameExercise: (weekday: number, exerciseId: string, name: string) => void;
+  addExercise: (cycleDay: CycleDay, name: string) => void;
+  removeExercise: (cycleDay: CycleDay, exerciseId: string) => void;
+  renameExercise: (cycleDay: CycleDay, exerciseId: string, name: string) => void;
+  insertRestDay: (date: string) => void;
   getLogFor: (date: string, exerciseId: string) => SessionLog | undefined;
   getLastLogBefore: (
     date: string,
@@ -61,7 +63,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       name,
       startDate,
       endDate: addMonths(startDate, 3),
-      schedule: { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] },
+      schedule: { u1: [], l1: [], u2: [], l2: [] },
+      insertedRestDates: [],
     };
     setState((s) => ({
       ...s,
@@ -83,34 +86,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }
 
-  function addExercise(weekday: number, name: string) {
+  function addExercise(cycleDay: CycleDay, name: string) {
     const trimmed = name.trim();
     if (!trimmed) return;
     updateActiveSchedule((schedule) => ({
       ...schedule,
-      [weekday]: [
-        ...(schedule[weekday] ?? []),
+      [cycleDay]: [
+        ...(schedule[cycleDay] ?? []),
         { id: uid(), name: trimmed },
       ],
     }));
   }
 
-  function removeExercise(weekday: number, exerciseId: string) {
+  function removeExercise(cycleDay: CycleDay, exerciseId: string) {
     updateActiveSchedule((schedule) => ({
       ...schedule,
-      [weekday]: (schedule[weekday] ?? []).filter(
+      [cycleDay]: (schedule[cycleDay] ?? []).filter(
         (e) => e.id !== exerciseId
       ),
     }));
   }
 
-  function renameExercise(weekday: number, exerciseId: string, name: string) {
+  function renameExercise(cycleDay: CycleDay, exerciseId: string, name: string) {
     const trimmed = name.trim();
     if (!trimmed) return;
     updateActiveSchedule((schedule) => ({
       ...schedule,
-      [weekday]: (schedule[weekday] ?? []).map((e) =>
+      [cycleDay]: (schedule[cycleDay] ?? []).map((e) =>
         e.id === exerciseId ? { ...e, name: trimmed } : e
+      ),
+    }));
+  }
+
+  function insertRestDay(date: string) {
+    setState((s) => ({
+      ...s,
+      mesocycles: s.mesocycles.map((m) =>
+        m.id === s.activeMesocycleId && !m.insertedRestDates.includes(date)
+          ? { ...m, insertedRestDates: [...m.insertedRestDates, date] }
+          : m
       ),
     }));
   }
@@ -159,6 +173,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addExercise,
     removeExercise,
     renameExercise,
+    insertRestDay,
     getLogFor,
     getLastLogBefore,
     saveLog,

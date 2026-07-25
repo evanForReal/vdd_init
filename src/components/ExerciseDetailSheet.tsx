@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import type { ExerciseTemplate, SetEntry } from "../types";
+import type { CycleDay, ExerciseTemplate, SetEntry } from "../types";
 import { useApp } from "../context/AppContext";
 
 function emptySet(): SetEntry {
-  return { reps: "", weight: "", completed: false };
+  return { reps: "", weight: "", rir: "", completed: false };
 }
 
 function summarizeLast(sets: SetEntry[]): string {
@@ -19,12 +19,12 @@ function summarizeLast(sets: SetEntry[]): string {
 export function ExerciseDetailSheet({
   exercise,
   date,
-  weekday,
+  cycleDay,
   onClose,
 }: {
   exercise: ExerciseTemplate;
   date: string;
-  weekday: number;
+  cycleDay: CycleDay;
   onClose: () => void;
 }) {
   const { getLogFor, getLastLogBefore, saveLog, removeExercise, renameExercise } =
@@ -34,7 +34,7 @@ export function ExerciseDetailSheet({
   const lastLog = getLastLogBefore(date, exercise.id);
 
   const [sets, setSets] = useState<SetEntry[]>(() => {
-    if (existing) return existing.sets;
+    if (existing) return existing.sets.map((s) => ({ ...s, rir: s.rir ?? "" }));
     const count = lastLog?.sets.length ?? 3;
     return Array.from({ length: count }, emptySet);
   });
@@ -70,7 +70,7 @@ export function ExerciseDetailSheet({
     setEditingName(false);
     const trimmed = nameDraft.trim();
     if (trimmed && trimmed !== exercise.name) {
-      renameExercise(weekday, exercise.id, trimmed);
+      renameExercise(cycleDay, exercise.id, trimmed);
     } else {
       setNameDraft(exercise.name);
     }
@@ -102,7 +102,7 @@ export function ExerciseDetailSheet({
 
         {lastLog && (
           <div className="last-session">
-            <div className="last-session-label">LAST</div>
+            <div className="last-session-label">last</div>
             <div className="last-session-value">
               {summarizeLast(lastLog.sets)}
             </div>
@@ -116,9 +116,10 @@ export function ExerciseDetailSheet({
 
         <div className="sets-grid">
           <div className="sets-grid-header">
-            <span>Set</span>
-            <span>Reps</span>
-            <span>Lb</span>
+            <span>set</span>
+            <span>reps</span>
+            <span>lb</span>
+            <span>rir</span>
             <span></span>
           </div>
           {sets.map((set, idx) => (
@@ -138,6 +139,13 @@ export function ExerciseDetailSheet({
                 value={set.weight}
                 onChange={(e) => updateSet(idx, { weight: e.target.value })}
               />
+              <input
+                className="set-input"
+                inputMode="numeric"
+                placeholder="-"
+                value={set.rir}
+                onChange={(e) => updateSet(idx, { rir: e.target.value })}
+              />
               <button
                 className={`check-toggle ${set.completed ? "checked" : ""}`}
                 onClick={() => updateSet(idx, { completed: !set.completed })}
@@ -153,7 +161,7 @@ export function ExerciseDetailSheet({
           <button className="round-btn" onClick={removeSet} aria-label="Remove set">
             −
           </button>
-          <span>Set</span>
+          <span>set</span>
           <button className="round-btn accent" onClick={addSet} aria-label="Add set">
             +
           </button>
@@ -173,7 +181,7 @@ export function ExerciseDetailSheet({
           className="remove-exercise-btn"
           onClick={() => {
             if (confirm(`remove ${exercise.name}?`)) {
-              removeExercise(weekday, exercise.id);
+              removeExercise(cycleDay, exercise.id);
               onClose();
             }
           }}

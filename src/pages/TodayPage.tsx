@@ -3,23 +3,18 @@ import { useApp } from "../context/AppContext";
 import type { ExerciseTemplate } from "../types";
 import { ExerciseDetailSheet } from "../components/ExerciseDetailSheet";
 import { ArtworkPanel } from "../components/ArtworkPanel";
-import {
-  daysBetween,
-  formatDateLong,
-  todayISO,
-  weekdayIndex,
-} from "../utils/date";
+import { daysBetween, formatDateLong, todayISO } from "../utils/date";
+import { CYCLE_DAY_LABELS, getCycleDay } from "../utils/cycle";
 
 const SPARSE_DAY_THRESHOLD = 2;
 
 export function TodayPage() {
-  const { activeMesocycle, getLogFor } = useApp();
+  const { activeMesocycle, getLogFor, insertRestDay } = useApp();
   const [openExercise, setOpenExercise] = useState<ExerciseTemplate | null>(
     null
   );
 
   const date = todayISO();
-  const weekday = weekdayIndex(date);
 
   if (!activeMesocycle) {
     return (
@@ -33,14 +28,18 @@ export function TodayPage() {
     );
   }
 
-  const exercises = activeMesocycle.schedule[weekday] ?? [];
+  const cycleDay = getCycleDay(activeMesocycle, date);
+  const isRest = cycleDay === "rest";
+  const exercises = isRest ? [] : activeMesocycle.schedule[cycleDay];
   const daysLeft = daysBetween(date, activeMesocycle.endDate);
 
   return (
     <div className="page">
       <header className="today-header">
         <div className="today-date">{formatDateLong(date)}</div>
-        <div className="meso-name">{activeMesocycle.name}</div>
+        <div className="meso-name">
+          {activeMesocycle.name} · {CYCLE_DAY_LABELS[cycleDay]}
+        </div>
       </header>
 
       {daysLeft <= 7 && daysLeft >= 0 && (
@@ -56,12 +55,32 @@ export function TodayPage() {
         </div>
       )}
 
-      {exercises.length === 0 ? (
+      {!isRest && (
+        <button
+          className="text-btn"
+          onClick={() => {
+            if (confirm("insert a rest day today? pushes every future day out by one.")) {
+              insertRestDay(date);
+            }
+          }}
+        >
+          insert rest day today
+        </button>
+      )}
+
+      {isRest ? (
+        <>
+          <div className="empty-state">
+            <p>rest day</p>
+          </div>
+          <ArtworkPanel seed={`today-rest-${date}`} />
+        </>
+      ) : exercises.length === 0 ? (
         <>
           <div className="empty-state">
             <p>nothing scheduled today</p>
           </div>
-          <ArtworkPanel seed={`today-rest-${date}`} />
+          <ArtworkPanel seed={`today-sparse-${date}`} />
         </>
       ) : (
         <div className="exercise-list">
@@ -93,11 +112,11 @@ export function TodayPage() {
         </div>
       )}
 
-      {openExercise && (
+      {openExercise && !isRest && (
         <ExerciseDetailSheet
           exercise={openExercise}
           date={date}
-          weekday={weekday}
+          cycleDay={cycleDay}
           onClose={() => setOpenExercise(null)}
         />
       )}

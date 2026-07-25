@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { ArtCategory } from "../data/artworks";
-import { commonsImageUrl, pickArtwork } from "../data/artworks";
+import { artworkImageUrl, pickArtwork } from "../data/artworks";
+import { Lightbox } from "./Lightbox";
 
 // A deterministic per-mount palette so the fallback card (used when the
 // image can't load) still feels like a specific painting, not an error.
@@ -24,11 +25,14 @@ export function ArtworkPanel({
   minHeight?: string;
 }) {
   const artwork = useMemo(() => pickArtwork(seed, categories), [seed, categories]);
-  const imageUrl = useMemo(() => commonsImageUrl(artwork), [artwork]);
+  const imageUrl = useMemo(() => artworkImageUrl(artwork), [artwork]);
+  const fullImageUrl = useMemo(() => artworkImageUrl(artwork, 2400), [artwork]);
   const [failed, setFailed] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const wash = FALLBACK_WASHES[
     Math.abs(seed.length + artwork.id.length) % FALLBACK_WASHES.length
   ];
+  const credit = `${artwork.title} — ${artwork.artist}, ${artwork.year} · ${artwork.museum}`;
 
   return (
     <div
@@ -36,13 +40,19 @@ export function ArtworkPanel({
       style={minHeight ? { minHeight } : undefined}
     >
       {!failed ? (
-        <img
-          className="artwork-panel-img"
-          src={imageUrl}
-          alt={`${artwork.title} by ${artwork.artist}`}
-          loading="lazy"
-          onError={() => setFailed(true)}
-        />
+        <button
+          className="artwork-panel-tap"
+          onClick={() => setLightboxOpen(true)}
+          aria-label={`view ${artwork.title} full screen`}
+        >
+          <img
+            className="artwork-panel-img"
+            src={imageUrl}
+            alt={`${artwork.title} by ${artwork.artist}`}
+            loading="lazy"
+            onError={() => setFailed(true)}
+          />
+        </button>
       ) : (
         <div className="artwork-panel-fallback" style={{ background: wash }}>
           <svg
@@ -68,6 +78,15 @@ export function ArtworkPanel({
           {artwork.artist}, {artwork.year} · {artwork.museum}
         </div>
       </div>
+
+      {lightboxOpen && (
+        <Lightbox
+          src={fullImageUrl}
+          alt={`${artwork.title} by ${artwork.artist}`}
+          caption={credit}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
     </div>
   );
 }

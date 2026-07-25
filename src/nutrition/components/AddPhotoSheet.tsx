@@ -40,7 +40,6 @@ export function AddPhotoSheet({ onClose }: { onClose: () => void }) {
             className="text-field"
             type="file"
             accept="image/*"
-            capture="environment"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
 

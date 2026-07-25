@@ -469,7 +469,7 @@ button {
 .sets-grid-header,
 .sets-grid-row {
   display: grid;
-  grid-template-columns: 30px 1fr 1fr 40px;
+  grid-template-columns: 24px 1fr 1fr 0.7fr 36px;
   align-items: center;
   gap: 10px;
 }
@@ -492,11 +492,12 @@ button {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 12px 8px;
+  padding: 12px 6px;
   color: var(--text);
-  font-size: 17px;
+  font-size: 16px;
   text-align: center;
   width: 100%;
+  min-width: 0;
 }
 
 .check-toggle {
@@ -583,6 +584,18 @@ button {
   margin-bottom: 20px;
 }
 
+.artwork-panel-tap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  cursor: pointer;
+}
+
 .artwork-panel-img {
   position: absolute;
   inset: 0;
@@ -590,6 +603,52 @@ button {
   height: 100%;
   object-fit: cover;
   object-position: center;
+}
+
+/* ---------- Lightbox ---------- */
+
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(8, 6, 5, 0.96);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: max(20px, env(safe-area-inset-top)) 16px
+    max(20px, env(safe-area-inset-bottom));
+}
+
+.lightbox-img {
+  max-width: 100%;
+  max-height: 82vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.lightbox-caption {
+  margin-top: 16px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text-dim);
+  text-align: center;
+  max-width: 90%;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: max(18px, env(safe-area-inset-top));
+  right: 18px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-soft);
+  color: var(--text);
+  font-size: 16px;
 }
 
 .artwork-panel-fallback {
@@ -680,29 +739,32 @@ button {
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 56px;
-  padding: 24px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 40px;
+  padding: max(64px, env(safe-area-inset-top) + 44px) 24px 24px 40px;
 }
 
 .home-title {
   font-family: var(--serif);
-  font-size: 30px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--text);
   letter-spacing: 0.01em;
   text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+  max-width: 220px;
+  line-height: 1.25;
 }
 
-.orb-row {
+.orb-column {
   display: flex;
-  gap: 36px;
+  flex-direction: column;
+  gap: 28px;
 }
 
 .orb {
-  width: 148px;
-  height: 148px;
+  width: 132px;
+  height: 132px;
   border-radius: 50%;
   border: 1px solid var(--border-soft);
   display: flex;
@@ -710,29 +772,42 @@ button {
   justify-content: center;
   text-align: center;
   cursor: pointer;
-  box-shadow: 0 20px 50px -18px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px -18px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(6px);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  outline: none;
 }
 
-.orb-workout {
+/* Explicitly pin every interaction state to the same background as the
+   base rule so the orbs never shift color on hover, press, or focus. */
+.orb-m,
+.orb-m:hover,
+.orb-m:active,
+.orb-m:focus,
+.orb-m:focus-visible {
   background: radial-gradient(
     circle at 35% 30%,
-    rgba(207, 164, 86, 0.5),
-    rgba(207, 164, 86, 0.12) 70%
+    rgba(230, 214, 180, 0.4),
+    rgba(230, 214, 180, 0.1) 70%
   );
 }
 
-.orb-nutrition {
+.orb-n,
+.orb-n:hover,
+.orb-n:active,
+.orb-n:focus,
+.orb-n:focus-visible {
   background: radial-gradient(
     circle at 35% 30%,
-    rgba(143, 168, 118, 0.5),
-    rgba(143, 168, 118, 0.12) 70%
+    rgba(200, 214, 200, 0.4),
+    rgba(200, 214, 200, 0.1) 70%
   );
 }
 
 .orb-label {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--text);
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
