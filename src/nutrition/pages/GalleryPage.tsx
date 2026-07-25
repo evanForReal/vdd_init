@@ -1,22 +1,21 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion, type PanInfo } from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion, type PanInfo } from "framer-motion";
 import { useNutrition } from "../context/NutritionContext";
 import { AddPhotoSheet } from "../components/AddPhotoSheet";
-import { PlusIcon } from "../components/Icons";
+import { GridIcon, PlusIcon } from "../components/Icons";
 import { ArtworkPanel } from "../../components/ArtworkPanel";
 import { Lightbox } from "../../components/Lightbox";
 import { formatDateLong } from "../../utils/date";
+import type { ProgressPhotoMeta } from "../types";
+
+type SlideCustom = number | "grid";
 
 const variants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 320 : -320,
-    opacity: 0,
-  }),
+  enter: (custom: SlideCustom) =>
+    custom === "grid" ? { opacity: 0 } : { x: custom > 0 ? 320 : -320, opacity: 0 },
   center: { x: 0, opacity: 1 },
-  exit: (direction: number) => ({
-    x: direction < 0 ? 320 : -320,
-    opacity: 0,
-  }),
+  exit: (custom: SlideCustom) =>
+    custom === "grid" ? { opacity: 0 } : { x: custom < 0 ? 320 : -320, opacity: 0 },
 };
 
 function usePhotoUrl(id: string | undefined) {
@@ -45,12 +44,35 @@ function usePhotoUrl(id: string | undefined) {
   return url;
 }
 
+function GridThumb({
+  photo,
+  onSelect,
+}: {
+  photo: ProgressPhotoMeta;
+  onSelect: () => void;
+}) {
+  const url = usePhotoUrl(photo.id);
+  return (
+    <motion.button
+      layoutId={`photo-${photo.id}`}
+      className="gallery-grid-item"
+      onClick={onSelect}
+      aria-label={`View photo from ${photo.date}`}
+    >
+      {url && <img className="gallery-grid-thumb" src={url} alt={photo.date} />}
+    </motion.button>
+  );
+}
+
 export function GalleryPage() {
-  const { photos, removePhoto } = useNutrition();
+  const { photos, removePhoto, updatePhotoDate } = useNutrition();
   const [[index, direction], setPage] = useState([photos.length - 1, 0]);
   const [exitVelocity, setExitVelocity] = useState(0);
   const [adding, setAdding] = useState(false);
   const [viewingFull, setViewingFull] = useState(false);
+  const [view, setView] = useState<"single" | "grid">("single");
+  const [editingDate, setEditingDate] = useState(false);
+  const [enteringFromGrid, setEnteringFromGrid] = useState(false);
 
   useEffect(() => {
     setPage(([i]) => [Math.min(i, photos.length - 1), 0]);
@@ -64,6 +86,7 @@ export function GalleryPage() {
   function paginate(newDirection: number, velocity: number) {
     const next = clampedIndex + newDirection;
     if (next < 0 || next >= photos.length) return;
+    setEnteringFromGrid(false);
     setExitVelocity(velocity);
     setPage([next, newDirection]);
   }
@@ -72,6 +95,14 @@ export function GalleryPage() {
     const swipe = Math.abs(info.offset.x) * info.velocity.x;
     if (swipe < -10000) paginate(1, info.velocity.x);
     else if (swipe > 10000) paginate(-1, info.velocity.x);
+  }
+
+  function selectFromGrid(id: string) {
+    const i = photos.findIndex((p) => p.id === id);
+    if (i >= 0) setPage([i, 0]);
+    setEnteringFromGrid(true);
+    setEditingDate(false);
+    setView("single");
   }
 
   if (photos.length === 0) {
@@ -93,83 +124,137 @@ export function GalleryPage() {
   }
 
   return (
-    <div className="page gallery-page">
-      <header className="program-header">
-        <h1>photos</h1>
-        <div className="meso-dates">
-          {clampedIndex + 1} / {photos.length}
-        </div>
-      </header>
-
-      <div className="gallery-stage">
-        <AnimatePresence initial={false} custom={direction}>
-          {current && (
-            <motion.div
-              key={current.id}
-              className="gallery-card"
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 300, damping: 30, velocity: exitVelocity },
-                opacity: { duration: 0.2 },
-              }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={1}
-              onDragEnd={onDragEnd}
-              onTap={() => setViewingFull(true)}
-            >
-              {url && <img className="gallery-photo" src={url} alt={current.date} />}
-              <div className="gallery-card-label">{formatDateLong(current.date)}</div>
-              <button
-                className="icon-btn subtle gallery-remove-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removePhoto(current.id);
-                }}
-                aria-label="Delete photo"
-              >
-                ✕
-              </button>
-            </motion.div>
+    <LayoutGroup>
+      <div className="page gallery-page">
+        <header className="program-header">
+          <h1>photos</h1>
+          {view === "single" && (
+            <div className="meso-dates">
+              {clampedIndex + 1} / {photos.length}
+            </div>
           )}
-        </AnimatePresence>
-      </div>
+        </header>
 
-      {viewingFull && url && current && (
-        <Lightbox
-          src={url}
-          alt={current.date}
-          caption={formatDateLong(current.date)}
-          onClose={() => setViewingFull(false)}
-        />
-      )}
+        {view === "grid" ? (
+          <div className="gallery-grid">
+            {photos.map((p) => (
+              <GridThumb key={p.id} photo={p} onSelect={() => selectFromGrid(p.id)} />
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className="gallery-stage">
+              <AnimatePresence initial={false} custom={enteringFromGrid ? "grid" : direction}>
+                {current && (
+                  <motion.div
+                    key={current.id}
+                    layoutId={`photo-${current.id}`}
+                    className="gallery-card"
+                    custom={enteringFromGrid ? "grid" : direction}
+                    variants={variants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{
+                      x: { type: "spring", stiffness: 300, damping: 30, velocity: exitVelocity },
+                      opacity: { duration: 0.2 },
+                    }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={1}
+                    onDragEnd={onDragEnd}
+                    onTap={(e) => {
+                      const target = e.target as HTMLElement;
+                      if (target.closest(".gallery-card-label, .gallery-remove-btn")) return;
+                      setViewingFull(true);
+                    }}
+                  >
+                    {url && <img className="gallery-photo" src={url} alt={current.date} />}
+                    <div
+                      className="gallery-card-label"
+                      onPointerDownCapture={(e) => e.stopPropagation()}
+                    >
+                      {editingDate ? (
+                        <input
+                          type="date"
+                          className="gallery-date-input"
+                          autoFocus
+                          defaultValue={current.date}
+                          onChange={(e) => {
+                            if (e.target.value) updatePhotoDate(current.id, e.target.value);
+                            setEditingDate(false);
+                          }}
+                          onBlur={() => setEditingDate(false)}
+                        />
+                      ) : (
+                        <button
+                          className="gallery-date-btn"
+                          onClick={() => setEditingDate(true)}
+                        >
+                          {formatDateLong(current.date)}
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      className="icon-btn subtle gallery-remove-btn"
+                      onPointerDownCapture={(e) => e.stopPropagation()}
+                      onClick={() => removePhoto(current.id)}
+                      aria-label="Delete photo"
+                    >
+                      ✕
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-      <div className="gallery-nav">
+            {viewingFull && url && current && (
+              <Lightbox
+                src={url}
+                alt={current.date}
+                caption={formatDateLong(current.date)}
+                onClose={() => setViewingFull(false)}
+              />
+            )}
+
+            <div className="gallery-nav">
+              <button
+                className="round-btn"
+                disabled={clampedIndex === 0}
+                onClick={() => paginate(-1, 0)}
+              >
+                ‹
+              </button>
+              <button
+                className="round-btn"
+                disabled={clampedIndex === photos.length - 1}
+                onClick={() => paginate(1, 0)}
+              >
+                ›
+              </button>
+            </div>
+          </>
+        )}
+
         <button
-          className="round-btn"
-          disabled={clampedIndex === 0}
-          onClick={() => paginate(-1, 0)}
+          className="fab fab-left"
+          onClick={() => {
+            if (view === "grid") setEnteringFromGrid(true);
+            setView((v) => (v === "grid" ? "single" : "grid"));
+          }}
+          aria-label={view === "grid" ? "View single photo" : "View all photos"}
         >
-          ‹
+          <GridIcon className="fab-icon" />
         </button>
-        <button
-          className="round-btn"
-          disabled={clampedIndex === photos.length - 1}
-          onClick={() => paginate(1, 0)}
-        >
-          ›
-        </button>
+
+        {view === "single" && (
+          <button className="fab" onClick={() => setAdding(true)} aria-label="Add photo">
+            <PlusIcon className="fab-icon" />
+          </button>
+        )}
+
+        {adding && <AddPhotoSheet onClose={() => setAdding(false)} />}
       </div>
-
-      <button className="fab" onClick={() => setAdding(true)} aria-label="Add photo">
-        <PlusIcon className="fab-icon" />
-      </button>
-
-      {adding && <AddPhotoSheet onClose={() => setAdding(false)} />}
-    </div>
+    </LayoutGroup>
   );
 }
