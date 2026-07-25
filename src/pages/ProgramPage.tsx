@@ -26,6 +26,10 @@ export function ProgramPage() {
   const [mesoName, setMesoName] = useState("My Mesocycle");
   const [startDate, setStartDate] = useState(todayISO());
   const [creatingNew, setCreatingNew] = useState(false);
+  // Stable for the life of this page visit so the backdrop art doesn't
+  // change from in-page toggles (typing a date, switching cycle-day tabs) —
+  // only a real navigation away and back (a fresh mount) picks a new piece.
+  const [pageSeed] = useState(() => `program-${Math.random().toString(36).slice(2)}`);
 
   if (!activeMesocycle || creatingNew) {
     return (
@@ -33,7 +37,7 @@ export function ProgramPage() {
         <header className="program-header">
           <h1>new mesocycle</h1>
         </header>
-        <ArtworkPanel seed={`new-meso-${startDate}`} variant="hero" minHeight="260px" />
+        <ArtworkPanel seed={pageSeed} variant="hero" minHeight="260px" />
         <div className="form">
           <label className="field-label">name</label>
           <input
@@ -178,7 +182,7 @@ export function ProgramPage() {
         )}
 
         {exercises.length <= SPARSE_DAY_THRESHOLD && (
-          <ArtworkPanel seed={`program-day-${selectedDay}`} />
+          <ArtworkPanel seed={pageSeed} />
         )}
       </div>
     </div>

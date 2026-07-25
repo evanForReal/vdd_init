@@ -3,14 +3,18 @@ import { useNutrition } from "../context/NutritionContext";
 import { WeekStrip } from "../components/WeekStrip";
 import { ActionFoldout } from "../components/ActionFoldout";
 import { FoodEntrySheet } from "../components/FoodEntrySheet";
-import { PlusIcon } from "../components/Icons";
+import { ChevronIcon } from "../components/Icons";
 import { ArtworkPanel } from "../../components/ArtworkPanel";
 import { formatDateLong, todayISO, weekStart, addDays } from "../../utils/date";
 
 const SPARSE_THRESHOLD = 1;
 
 function summarize(value: number, confidence?: number): string {
-  return confidence ? `${value} ±${confidence}` : `${value}`;
+  return confidence ? `${value} ± ${confidence}` : `${value}`;
+}
+
+function sumConfidence(values: (number | undefined)[]): number {
+  return values.reduce((sum: number, v) => sum + (v ?? 0), 0);
 }
 
 export function DayPage() {
@@ -27,6 +31,11 @@ export function DayPage() {
   const [selectedDate, setSelectedDate] = useState(today);
   const [weekAnchor, setWeekAnchor] = useState(weekStart(today));
   const [addingFood, setAddingFood] = useState(false);
+  const [foodOpen, setFoodOpen] = useState(true);
+  // Stable for the life of this page visit so the backdrop art doesn't
+  // change every time you flip days or toggle a foldout — only a real
+  // navigation away and back (a fresh mount) picks a new piece.
+  const [daySeed] = useState(() => `nutrition-day-${Math.random().toString(36).slice(2)}`);
 
   const entries = entriesForDate(selectedDate);
   const comments = commentsForDate(selectedDate);
@@ -34,6 +43,8 @@ export function DayPage() {
 
   const totalCalories = entries.reduce((sum, e) => sum + e.calories.value, 0);
   const totalProtein = entries.reduce((sum, e) => sum + e.protein.value, 0);
+  const caloriesConfidence = sumConfidence(entries.map((e) => e.calories.confidence));
+  const proteinConfidence = sumConfidence(entries.map((e) => e.protein.confidence));
   const calorieTarget = state.targets.calories + extraCaloriesForDate(selectedDate);
 
   function selectDate(date: string) {
@@ -64,15 +75,15 @@ export function DayPage() {
         <div className="nutrition-summary">
           <div className="nutrition-summary-stat">
             <span className="nutrition-summary-value">
-              {totalCalories} / {calorieTarget}
+              {summarize(totalCalories, caloriesConfidence || undefined)}
             </span>
-            <span className="nutrition-summary-label">calories</span>
+            <span className="nutrition-summary-target">/{calorieTarget}</span>
           </div>
           <div className="nutrition-summary-stat">
             <span className="nutrition-summary-value">
-              {totalProtein} / {state.targets.proteinGrams}g
+              {summarize(totalProtein, proteinConfidence || undefined)}
             </span>
-            <span className="nutrition-summary-label">protein</span>
+            <span className="nutrition-summary-target">/{state.targets.proteinGrams}g</span>
           </div>
         </div>
       )}
@@ -90,48 +101,58 @@ export function DayPage() {
         </div>
       )}
 
-      {entries.length === 0 ? (
-        <>
-          {!freeDay && (
-            <div className="empty-state">
-              <p>nothing logged yet</p>
-            </div>
-          )}
-          <ArtworkPanel seed={`nutrition-${selectedDate}`} />
-        </>
-      ) : (
-        <div className="exercise-list">
-          {entries.map((e) => (
-            <div className="food-card" key={e.id}>
-              <div className="food-card-main">
-                <span className="food-card-label">{e.label}</span>
-                <span className="food-card-macros">
-                  {summarize(e.calories.value, e.calories.confidence)} kcal ·{" "}
-                  {summarize(e.protein.value, e.protein.confidence)}g protein
-                </span>
-              </div>
-              <button
-                className="icon-btn subtle"
-                onClick={() => removeFoodEntry(e.id)}
-                aria-label="Remove entry"
-              >
-                ✕
-              </button>
+      <div className="action-foldout">
+        <button
+          className="action-foldout-toggle"
+          onClick={() => setFoodOpen((o) => !o)}
+        >
+          <span>food</span>
+          <ChevronIcon className={`foldout-chevron ${foodOpen ? "open" : ""}`} />
+        </button>
+
+        <button
+          className="add-exercise-btn food-add-btn"
+          onClick={() => setAddingFood(true)}
+        >
+          + add food
+        </button>
+
+        {foodOpen &&
+          (entries.length === 0 ? (
+            <>
+              {!freeDay && (
+                <div className="empty-state">
+                  <p>nothing logged yet</p>
+                </div>
+              )}
+              <ArtworkPanel seed={daySeed} />
+            </>
+          ) : (
+            <div className="exercise-list">
+              {entries.map((e) => (
+                <div className="food-card" key={e.id}>
+                  <div className="food-card-main">
+                    <span className="food-card-label">{e.label}</span>
+                    <span className="food-card-macros">
+                      {summarize(e.calories.value, e.calories.confidence)} kcal ·{" "}
+                      {summarize(e.protein.value, e.protein.confidence)}g protein
+                    </span>
+                  </div>
+                  <button
+                    className="icon-btn subtle"
+                    onClick={() => removeFoodEntry(e.id)}
+                    aria-label="Remove entry"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              {entries.length <= SPARSE_THRESHOLD && (
+                <ArtworkPanel seed={daySeed} />
+              )}
             </div>
           ))}
-          {entries.length <= SPARSE_THRESHOLD && (
-            <ArtworkPanel seed={`nutrition-sparse-${selectedDate}`} />
-          )}
-        </div>
-      )}
-
-      <button
-        className="fab"
-        onClick={() => setAddingFood(true)}
-        aria-label="Add food"
-      >
-        <PlusIcon className="fab-icon" />
-      </button>
+      </div>
 
       {addingFood && (
         <FoodEntrySheet date={selectedDate} onClose={() => setAddingFood(false)} />

@@ -48,6 +48,7 @@ interface NutritionContextValue {
   photos: ProgressPhotoMeta[];
   addPhoto: (date: string, blob: Blob) => Promise<void>;
   removePhoto: (id: string) => Promise<void>;
+  updatePhotoDate: (id: string, date: string) => void;
   getPhotoUrl: (id: string) => Promise<string | undefined>;
 }
 
@@ -141,20 +142,24 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
   }
 
   async function addPhoto(date: string, blob: Blob) {
-    const existing = state.photos.find((p) => p.date === date);
-    const id = existing?.id ?? uid();
+    const id = uid();
     await savePhotoBlob(id, blob);
     setState((s) => ({
       ...s,
-      photos: existing
-        ? s.photos.map((p) => (p.id === id ? { ...p, createdAt: Date.now() } : p))
-        : [...s.photos, { id, date, createdAt: Date.now() }],
+      photos: [...s.photos, { id, date, createdAt: Date.now() }],
     }));
   }
 
   async function removePhoto(id: string) {
     await deletePhotoBlob(id);
     setState((s) => ({ ...s, photos: s.photos.filter((p) => p.id !== id) }));
+  }
+
+  function updatePhotoDate(id: string, date: string) {
+    setState((s) => ({
+      ...s,
+      photos: s.photos.map((p) => (p.id === id ? { ...p, date } : p)),
+    }));
   }
 
   async function getPhotoUrl(id: string) {
@@ -183,6 +188,7 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
     photos,
     addPhoto,
     removePhoto,
+    updatePhotoDate,
     getPhotoUrl,
   };
 

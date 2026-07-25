@@ -57,7 +57,7 @@ export function TodayPage() {
 
       {!isRest && (
         <button
-          className="text-btn"
+          className="text-btn rest-day-btn"
           onClick={() => {
             if (confirm("insert a rest day today? pushes every future day out by one.")) {
               insertRestDay(date);
