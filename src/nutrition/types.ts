@@ -42,6 +42,29 @@ export interface ProgressPhotoMeta {
   createdAt: number;
 }
 
+export interface TemplateItem {
+  label: string;
+  protein: ConfidenceValue;
+  calories: ConfidenceValue;
+}
+
+export interface MealTemplate {
+  id: string;
+  name: string;
+  items: TemplateItem[];
+  createdAt: number;
+}
+
+export interface PlannedItem extends TemplateItem {
+  id: string;
+  status: "pending" | "confirmed" | "skipped";
+}
+
+export interface PlannedDay {
+  date: string; // ISO date
+  items: PlannedItem[];
+}
+
 export interface NutritionState {
   targets: NutritionTargets;
   entries: FoodEntry[];
@@ -49,4 +72,6 @@ export interface NutritionState {
   boosts: CalorieBoost[];
   freeDays: FreeDay[];
   photos: ProgressPhotoMeta[];
+  templates: MealTemplate[];
+  plannedDays: PlannedDay[];
 }
