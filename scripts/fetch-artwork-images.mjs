@@ -3,8 +3,9 @@
 // load-time flicker). Runs before `vite build` in CI, where outbound network
 // access is unrestricted. Safe to run repeatedly — already-downloaded files
 // are skipped. If a fetch fails (e.g. no network, as in some sandboxed dev
-// environments), that artwork just falls back to the live Commons URL at
-// runtime — see commonsImageUrl() in src/data/artworks.ts.
+// environments, or after retries on rate-limiting), that artwork just falls
+// back to the live Commons URL at runtime — see commonsImageUrl() in
+// src/data/artworks.ts.
 
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { fileURLToPath } from "url";
@@ -30,6 +31,43 @@ const EXT_BY_TYPE = {
   "image/svg+xml": "svg",
 };
 
+// Wikimedia's etiquette policy asks automated clients to identify
+// themselves and to keep request rates modest; a generic fetch() with no
+// User-Agent and no pacing gets 429'd almost immediately.
+const USER_AGENT =
+  "the-right-tracking-app/1.0 (personal fitness tracker build script; https://github.com/evanForReal/vdd_init) node-fetch";
+const REQUEST_DELAY_MS = 250;
+const MAX_RETRIES = 4;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Only rate-limit responses (429/503) are worth retrying with backoff — a
+// thrown network error (connection refused, blocked by a proxy policy, DNS
+// failure, ...) will fail identically on retry, so that's a fast, single
+// attempt with no backoff.
+async function fetchWithRetry(url) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const res = await fetch(url, {
+      redirect: "follow",
+      headers: { "User-Agent": USER_AGENT },
+    });
+    if (res.status === 429 || res.status === 503) {
+      if (attempt === MAX_RETRIES) throw new Error(`HTTP ${res.status} (retries exhausted)`);
+      const retryAfter = Number(res.headers.get("retry-after"));
+      const wait = Number.isFinite(retryAfter) && retryAfter > 0
+        ? retryAfter * 1000
+        : 1000 * 2 ** attempt;
+      await sleep(wait);
+      continue;
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res;
+  }
+  throw new Error("unreachable");
+}
+
 const manifest = {};
 let downloaded = 0;
 let skipped = 0;
@@ -47,8 +85,7 @@ for (const artwork of ARTWORKS) {
 
   const url = commonsImageUrl(artwork, 1600);
   try {
-    const res = await fetch(url, { redirect: "follow" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetchWithRetry(url);
     const contentType = res.headers.get("content-type")?.split(";")[0] ?? "";
     const ext = EXT_BY_TYPE[contentType] ?? "jpg";
     const buf = Buffer.from(await res.arrayBuffer());
@@ -60,6 +97,8 @@ for (const artwork of ARTWORKS) {
     console.warn(`skip ${artwork.id}: ${err.message}`);
     failed++;
   }
+
+  await sleep(REQUEST_DELAY_MS);
 }
 
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
