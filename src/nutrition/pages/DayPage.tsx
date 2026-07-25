@@ -6,12 +6,9 @@ import { FoodEntrySheet } from "../components/FoodEntrySheet";
 import { ChevronIcon } from "../components/Icons";
 import { ArtworkPanel } from "../../components/ArtworkPanel";
 import { formatDateLong, todayISO, weekStart, addDays } from "../../utils/date";
+import { summarize } from "../format";
 
 const SPARSE_THRESHOLD = 1;
-
-function summarize(value: number, confidence?: number): string {
-  return confidence ? `${value} ± ${confidence}` : `${value}`;
-}
 
 function sumConfidence(values: (number | undefined)[]): number {
   return values.reduce((sum: number, v) => sum + (v ?? 0), 0);
@@ -25,6 +22,9 @@ export function DayPage() {
     isFreeDay,
     extraCaloriesForDate,
     state,
+    plannedItemsForDate,
+    confirmPlannedItem,
+    skipPlannedItem,
   } = useNutrition();
 
   const today = todayISO();
@@ -40,6 +40,7 @@ export function DayPage() {
   const entries = entriesForDate(selectedDate);
   const comments = commentsForDate(selectedDate);
   const freeDay = isFreeDay(selectedDate);
+  const planned = plannedItemsForDate(selectedDate);
 
   const totalCalories = entries.reduce((sum, e) => sum + e.calories.value, 0);
   const totalProtein = entries.reduce((sum, e) => sum + e.protein.value, 0);
@@ -98,6 +99,41 @@ export function DayPage() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {planned.length > 0 && (
+        <div className="planned-section">
+          <div className="field-label">planned</div>
+          <div className="exercise-list">
+            {planned.map((item) => (
+              <div className="food-card planned-card" key={item.id}>
+                <div className="food-card-main">
+                  <span className="food-card-label">{item.label}</span>
+                  <span className="food-card-macros">
+                    {summarize(item.calories.value, item.calories.confidence)} kcal ·{" "}
+                    {summarize(item.protein.value, item.protein.confidence)}g protein
+                  </span>
+                </div>
+                <div className="planned-card-actions">
+                  <button
+                    className="icon-btn subtle"
+                    onClick={() => skipPlannedItem(selectedDate, item.id)}
+                    aria-label="Skip planned item"
+                  >
+                    ✕
+                  </button>
+                  <button
+                    className="icon-btn subtle confirm"
+                    onClick={() => confirmPlannedItem(selectedDate, item.id)}
+                    aria-label="Log planned item as eaten"
+                  >
+                    ✓
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

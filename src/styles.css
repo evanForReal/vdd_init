@@ -1121,6 +1121,156 @@ button {
   color: var(--text-dim);
 }
 
+/* ---------- Plan tab ---------- */
+
+.planned-section {
+  margin-bottom: 16px;
+}
+
+.planned-card {
+  border-style: dashed;
+  background: none;
+  box-shadow: none;
+}
+
+.planned-card-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.icon-btn.confirm {
+  color: var(--green);
+}
+
+.plan-day-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.template-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.template-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.template-row-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.template-row-meta {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.template-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.template-row-actions .text-btn {
+  padding-top: 0;
+}
+
+.template-item-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  margin-top: 6px;
+}
+
+.template-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.mode-toggle-btn {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 10px;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mode-toggle-btn.active {
+  background: linear-gradient(155deg, var(--accent-strong), var(--accent));
+  border-color: var(--accent);
+  color: #211703;
+}
+
+.weekday-chip-row {
+  display: flex;
+  gap: 5px;
+}
+
+.weekday-chip {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 8px;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.weekday-chip.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+
+.upcoming-plan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upcoming-plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.upcoming-plan-date {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.upcoming-plan-meta {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
 /* ---------- FAB ---------- */
 
 .fab {

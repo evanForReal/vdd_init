@@ -10,9 +10,12 @@ import type {
   ConfidenceValue,
   DayComment,
   FoodEntry,
+  MealTemplate,
   NutritionState,
   NutritionTargets,
+  PlannedItem,
   ProgressPhotoMeta,
+  TemplateItem,
 } from "../types";
 import {
   deletePhotoBlob,
@@ -21,7 +24,7 @@ import {
   saveNutritionState,
   savePhotoBlob,
 } from "../storage";
-import { addDays, daysBetween } from "../../utils/date";
+import { addDays, daysBetween, weekdayIndex } from "../../utils/date";
 
 function uid(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
@@ -50,6 +53,27 @@ interface NutritionContextValue {
   removePhoto: (id: string) => Promise<void>;
   updatePhotoDate: (id: string, date: string) => void;
   getPhotoUrl: (id: string) => Promise<string | undefined>;
+  templates: MealTemplate[];
+  createTemplate: (name: string, items: TemplateItem[]) => void;
+  deleteTemplate: (id: string) => void;
+  plannedItemsForDate: (date: string) => PlannedItem[];
+  upcomingPlannedDays: (fromDate: string, days: number) => { date: string; items: PlannedItem[] }[];
+  addPlannedItem: (
+    date: string,
+    label: string,
+    protein: ConfidenceValue,
+    calories: ConfidenceValue
+  ) => void;
+  removePlannedItem: (date: string, itemId: string) => void;
+  confirmPlannedItem: (date: string, itemId: string) => void;
+  skipPlannedItem: (date: string, itemId: string) => void;
+  assignTemplateToDate: (templateId: string, date: string) => void;
+  assignTemplateToRange: (
+    templateId: string,
+    startDate: string,
+    endDate: string,
+    weekdays?: number[]
+  ) => void;
 }
 
 const NutritionContext = createContext<NutritionContextValue | null>(null);
@@ -141,6 +165,117 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
     }));
   }
 
+  function createTemplate(name: string, items: TemplateItem[]) {
+    const template: MealTemplate = {
+      id: uid(),
+      name: name.trim() || "template",
+      items,
+      createdAt: Date.now(),
+    };
+    setState((s) => ({ ...s, templates: [...s.templates, template] }));
+  }
+
+  function deleteTemplate(id: string) {
+    setState((s) => ({ ...s, templates: s.templates.filter((t) => t.id !== id) }));
+  }
+
+  function plannedItemsForDate(date: string): PlannedItem[] {
+    return (
+      state.plannedDays.find((p) => p.date === date)?.items.filter((i) => i.status === "pending") ?? []
+    );
+  }
+
+  function upcomingPlannedDays(fromDate: string, days: number) {
+    const cutoff = addDays(fromDate, days);
+    return state.plannedDays
+      .map((p) => ({ date: p.date, items: p.items.filter((i) => i.status === "pending") }))
+      .filter(
+        (p) =>
+          p.items.length > 0 &&
+          daysBetween(fromDate, p.date) >= 0 &&
+          daysBetween(p.date, cutoff) >= 0
+      )
+      .sort((a, b) => (a.date < b.date ? -1 : 1));
+  }
+
+  // Adds `newItems` to the plan for `date`, creating the plan if it doesn't
+  // exist yet. Used by both freehand adds and template assignment.
+  function appendPlannedItems(date: string, newItems: PlannedItem[]) {
+    setState((s) => {
+      const existing = s.plannedDays.find((p) => p.date === date);
+      const plannedDays = existing
+        ? s.plannedDays.map((p) => (p.date === date ? { ...p, items: [...p.items, ...newItems] } : p))
+        : [...s.plannedDays, { date, items: newItems }];
+      return { ...s, plannedDays };
+    });
+  }
+
+  function addPlannedItem(
+    date: string,
+    label: string,
+    protein: ConfidenceValue,
+    calories: ConfidenceValue
+  ) {
+    appendPlannedItems(date, [
+      { id: uid(), label: label.trim() || "food", protein, calories, status: "pending" },
+    ]);
+  }
+
+  function removePlannedItem(date: string, itemId: string) {
+    setState((s) => ({
+      ...s,
+      plannedDays: s.plannedDays.map((p) =>
+        p.date === date ? { ...p, items: p.items.filter((i) => i.id !== itemId) } : p
+      ),
+    }));
+  }
+
+  function setPlannedItemStatus(date: string, itemId: string, status: PlannedItem["status"]) {
+    setState((s) => ({
+      ...s,
+      plannedDays: s.plannedDays.map((p) =>
+        p.date === date
+          ? { ...p, items: p.items.map((i) => (i.id === itemId ? { ...i, status } : i)) }
+          : p
+      ),
+    }));
+  }
+
+  function confirmPlannedItem(date: string, itemId: string) {
+    const item = state.plannedDays.find((p) => p.date === date)?.items.find((i) => i.id === itemId);
+    if (!item) return;
+    addFoodEntry(date, item.label, item.protein, item.calories);
+    setPlannedItemStatus(date, itemId, "confirmed");
+  }
+
+  function skipPlannedItem(date: string, itemId: string) {
+    setPlannedItemStatus(date, itemId, "skipped");
+  }
+
+  function assignTemplateToDate(templateId: string, date: string) {
+    const template = state.templates.find((t) => t.id === templateId);
+    if (!template) return;
+    appendPlannedItems(
+      date,
+      template.items.map((item) => ({ ...item, id: uid(), status: "pending" as const }))
+    );
+  }
+
+  function assignTemplateToRange(
+    templateId: string,
+    startDate: string,
+    endDate: string,
+    weekdays?: number[]
+  ) {
+    const span = daysBetween(startDate, endDate);
+    if (span < 0) return;
+    for (let i = 0; i <= span; i++) {
+      const date = addDays(startDate, i);
+      if (weekdays && weekdays.length > 0 && !weekdays.includes(weekdayIndex(date))) continue;
+      assignTemplateToDate(templateId, date);
+    }
+  }
+
   async function addPhoto(date: string, blob: Blob) {
     const id = uid();
     await savePhotoBlob(id, blob);
@@ -190,6 +325,17 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
     removePhoto,
     updatePhotoDate,
     getPhotoUrl,
+    templates: state.templates,
+    createTemplate,
+    deleteTemplate,
+    plannedItemsForDate,
+    upcomingPlannedDays,
+    addPlannedItem,
+    removePlannedItem,
+    confirmPlannedItem,
+    skipPlannedItem,
+    assignTemplateToDate,
+    assignTemplateToRange,
   };
 
   return (

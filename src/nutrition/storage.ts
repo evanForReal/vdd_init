@@ -9,6 +9,8 @@ const DEFAULT_STATE: NutritionState = {
   boosts: [],
   freeDays: [],
   photos: [],
+  templates: [],
+  plannedDays: [],
 };
 
 export function loadNutritionState(): NutritionState {
@@ -23,6 +25,8 @@ export function loadNutritionState(): NutritionState {
       boosts: parsed.boosts ?? [],
       freeDays: parsed.freeDays ?? [],
       photos: parsed.photos ?? [],
+      templates: parsed.templates ?? [],
+      plannedDays: parsed.plannedDays ?? [],
     };
   } catch {
     return DEFAULT_STATE;
