@@ -161,7 +161,7 @@ export function ExerciseDetailSheet({
 
         <input
           className="comment-input"
-          placeholder="Add exercise note"
+          placeholder="note"
           value={comment}
           onChange={(e) => {
             setDirty(true);
@@ -172,13 +172,13 @@ export function ExerciseDetailSheet({
         <button
           className="remove-exercise-btn"
           onClick={() => {
-            if (confirm(`Remove ${exercise.name} from this day's program?`)) {
+            if (confirm(`remove ${exercise.name}?`)) {
               removeExercise(weekday, exercise.id);
               onClose();
             }
           }}
         >
-          Remove from program
+          remove
         </button>
       </div>
     </div>

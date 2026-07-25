@@ -59,20 +59,20 @@ export function DayPage() {
       <ActionFoldout date={selectedDate} />
 
       {freeDay ? (
-        <div className="banner free-day-banner">Free day — nothing tracked.</div>
+        <div className="banner free-day-banner">free day</div>
       ) : (
         <div className="nutrition-summary">
           <div className="nutrition-summary-stat">
             <span className="nutrition-summary-value">
               {totalCalories} / {calorieTarget}
             </span>
-            <span className="nutrition-summary-label">Calories</span>
+            <span className="nutrition-summary-label">calories</span>
           </div>
           <div className="nutrition-summary-stat">
             <span className="nutrition-summary-value">
               {totalProtein} / {state.targets.proteinGrams}g
             </span>
-            <span className="nutrition-summary-label">Protein</span>
+            <span className="nutrition-summary-label">protein</span>
           </div>
         </div>
       )}
@@ -94,7 +94,7 @@ export function DayPage() {
         <>
           {!freeDay && (
             <div className="empty-state">
-              <p>No food logged yet today.</p>
+              <p>nothing logged yet</p>
             </div>
           )}
           <ArtworkPanel seed={`nutrition-${selectedDate}`} />

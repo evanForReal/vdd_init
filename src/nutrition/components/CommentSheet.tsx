@@ -26,33 +26,33 @@ export function CommentSheet({
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <div className="sheet-handle" />
         <div className="sheet-header">
-          <h2 className="sheet-title">Note on Today</h2>
+          <h2 className="sheet-title">note</h2>
           <button className="icon-btn" onClick={onClose} aria-label="Close">
             ✕
           </button>
         </div>
 
         <div className="form">
-          <label className="field-label">Title</label>
+          <label className="field-label">title</label>
           <input
             className="text-field"
-            placeholder="Short title"
+            placeholder="short title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             autoFocus
           />
 
-          <label className="field-label">Description</label>
+          <label className="field-label">description</label>
           <textarea
             className="text-field textarea-field"
-            placeholder="What's going on today?"
+            placeholder="what's up today?"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
           />
 
           <button className="primary-btn" onClick={submit}>
-            Save Note
+            save
           </button>
         </div>
       </div>

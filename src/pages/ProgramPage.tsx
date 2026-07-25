@@ -30,24 +30,24 @@ export function ProgramPage() {
     return (
       <div className="page">
         <header className="program-header">
-          <h1>New Mesocycle</h1>
+          <h1>new mesocycle</h1>
         </header>
         <ArtworkPanel seed={`new-meso-${startDate}`} variant="hero" minHeight="260px" />
         <div className="form">
-          <label className="field-label">Name</label>
+          <label className="field-label">name</label>
           <input
             className="text-field"
             value={mesoName}
             onChange={(e) => setMesoName(e.target.value)}
           />
-          <label className="field-label">Start date</label>
+          <label className="field-label">start date</label>
           <input
             className="text-field"
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
-          <p className="hint">Runs 3 months from the start date.</p>
+          <p className="hint">runs 3 months</p>
           <button
             className="primary-btn"
             onClick={() => {
@@ -55,11 +55,11 @@ export function ProgramPage() {
               setCreatingNew(false);
             }}
           >
-            Create Mesocycle
+            create
           </button>
           {activeMesocycle && (
             <button className="text-btn" onClick={() => setCreatingNew(false)}>
-              Cancel
+              cancel
             </button>
           )}
         </div>
@@ -95,14 +95,14 @@ export function ProgramPage() {
           onClick={() => {
             if (
               confirm(
-                "Start a new mesocycle? This clears the weekly schedule (past logs stay saved)."
+                "start a new mesocycle? clears the weekly schedule (past logs stay saved)."
               )
             ) {
               setCreatingNew(true);
             }
           }}
         >
-          Start New Mesocycle
+          new mesocycle
         </button>
       </header>
 
@@ -158,7 +158,7 @@ export function ProgramPage() {
             <input
               className="text-field inline"
               autoFocus
-              placeholder="Exercise name"
+              placeholder="exercise name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onBlur={submitAdd}
@@ -167,7 +167,7 @@ export function ProgramPage() {
           </div>
         ) : (
           <button className="add-exercise-btn" onClick={() => setAdding(true)}>
-            + Add Exercise
+            + add exercise
           </button>
         )}
 

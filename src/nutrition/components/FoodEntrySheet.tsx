@@ -42,22 +42,22 @@ export function FoodEntrySheet({
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <div className="sheet-handle" />
         <div className="sheet-header">
-          <h2 className="sheet-title">Add Food</h2>
+          <h2 className="sheet-title">add food</h2>
           <button className="icon-btn" onClick={onClose} aria-label="Close">
             ✕
           </button>
         </div>
 
         <div className="form">
-          <label className="field-label">Name (optional)</label>
+          <label className="field-label">name (optional)</label>
           <input
             className="text-field"
-            placeholder="e.g. Chicken bowl"
+            placeholder="e.g. chicken bowl"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
           />
 
-          <label className="field-label">Protein (g)</label>
+          <label className="field-label">protein (g)</label>
           <div className="value-confidence-row">
             <input
               className="text-field"
@@ -76,7 +76,7 @@ export function FoodEntrySheet({
             />
           </div>
 
-          <label className="field-label">Calories</label>
+          <label className="field-label">calories</label>
           <div className="value-confidence-row">
             <input
               className="text-field"
@@ -96,7 +96,7 @@ export function FoodEntrySheet({
           </div>
 
           <button className="primary-btn" onClick={submit}>
-            Add
+            add
           </button>
         </div>
       </div>

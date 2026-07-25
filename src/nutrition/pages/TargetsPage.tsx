@@ -21,11 +21,11 @@ export function TargetsPage() {
   return (
     <div className="page">
       <header className="program-header">
-        <h1>Daily Targets</h1>
+        <h1>targets</h1>
       </header>
 
       <div className="form">
-        <label className="field-label">Calories</label>
+        <label className="field-label">calories</label>
         <input
           className="text-field"
           inputMode="decimal"
@@ -34,7 +34,7 @@ export function TargetsPage() {
           onBlur={save}
         />
 
-        <label className="field-label">Protein (g)</label>
+        <label className="field-label">protein (g)</label>
         <input
           className="text-field"
           inputMode="decimal"
@@ -44,7 +44,7 @@ export function TargetsPage() {
         />
 
         <button className="primary-btn" onClick={save}>
-          Save Targets
+          save
         </button>
       </div>
 

@@ -76,10 +76,10 @@ export function GalleryPage() {
     return (
       <div className="page">
         <header className="program-header">
-          <h1>Progress Photos</h1>
+          <h1>photos</h1>
         </header>
         <div className="empty-state">
-          <p>No progress photos yet.</p>
+          <p>no photos yet</p>
         </div>
         <ArtworkPanel seed="nutrition-gallery-empty" />
         <button className="fab" onClick={() => setAdding(true)} aria-label="Add photo">
@@ -93,7 +93,7 @@ export function GalleryPage() {
   return (
     <div className="page gallery-page">
       <header className="program-header">
-        <h1>Progress Photos</h1>
+        <h1>photos</h1>
         <div className="meso-dates">
           {clampedIndex + 1} / {photos.length}
         </div>

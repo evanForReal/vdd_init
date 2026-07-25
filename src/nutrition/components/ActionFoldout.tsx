@@ -18,7 +18,7 @@ export function ActionFoldout({ date }: { date: string }) {
         className="action-foldout-toggle"
         onClick={() => setOpen((o) => !o)}
       >
-        <span>Actions</span>
+        <span>actions</span>
         <ChevronIcon className={`foldout-chevron ${open ? "open" : ""}`} />
       </button>
 
@@ -29,7 +29,7 @@ export function ActionFoldout({ date }: { date: string }) {
             onClick={() => pressCalorieBoost(date, 500)}
           >
             <FlameIcon className="action-btn-icon" />
-            <span className="action-btn-label">Add 500 Calories to Target</span>
+            <span className="action-btn-label">+500 kcal to target</span>
             <span className="action-btn-badge">{boostCount}×/7d</span>
           </button>
 
@@ -38,12 +38,12 @@ export function ActionFoldout({ date }: { date: string }) {
             onClick={() => setConfirmingFreeDay(true)}
           >
             <SunIcon className="action-btn-icon" />
-            <span className="action-btn-label">Free Day</span>
+            <span className="action-btn-label">free day</span>
           </button>
 
           <button className="action-btn" onClick={() => setCommentOpen(true)}>
             <CommentIcon className="action-btn-icon" />
-            <span className="action-btn-label">Note on Today</span>
+            <span className="action-btn-label">note</span>
           </button>
         </div>
       )}

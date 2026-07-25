@@ -25,8 +25,8 @@ export function TodayPage() {
     return (
       <div className="page">
         <div className="empty-state">
-          <h2>No active mesocycle</h2>
-          <p>Head to the Program tab to set one up and build your weekly schedule.</p>
+          <h2>no mesocycle</h2>
+          <p>set one up in program.</p>
         </div>
         <ArtworkPanel seed={`today-empty-${date}`} />
       </div>
@@ -46,21 +46,20 @@ export function TodayPage() {
       {daysLeft <= 7 && daysLeft >= 0 && (
         <div className="banner">
           {daysLeft === 0
-            ? "This mesocycle ends today. Set up your next one in Program."
-            : `${daysLeft} day${daysLeft === 1 ? "" : "s"} left in this mesocycle.`}
+            ? "mesocycle ends today — start a new one in program"
+            : `${daysLeft} day${daysLeft === 1 ? "" : "s"} left`}
         </div>
       )}
       {daysLeft < 0 && (
         <div className="banner warning">
-          This mesocycle ended {Math.abs(daysLeft)} day
-          {Math.abs(daysLeft) === 1 ? "" : "s"} ago. Start a new one in Program.
+          mesocycle ended {Math.abs(daysLeft)}d ago — start a new one
         </div>
       )}
 
       {exercises.length === 0 ? (
         <>
           <div className="empty-state">
-            <p>No exercises scheduled for today.</p>
+            <p>nothing scheduled today</p>
           </div>
           <ArtworkPanel seed={`today-rest-${date}`} />
         </>

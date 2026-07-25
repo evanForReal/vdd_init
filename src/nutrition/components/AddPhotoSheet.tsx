@@ -19,14 +19,14 @@ export function AddPhotoSheet({ onClose }: { onClose: () => void }) {
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <div className="sheet-handle" />
         <div className="sheet-header">
-          <h2 className="sheet-title">Add Progress Photo</h2>
+          <h2 className="sheet-title">add photo</h2>
           <button className="icon-btn" onClick={onClose} aria-label="Close">
             ✕
           </button>
         </div>
 
         <div className="form">
-          <label className="field-label">Date</label>
+          <label className="field-label">date</label>
           <input
             className="text-field"
             type="date"
@@ -34,7 +34,7 @@ export function AddPhotoSheet({ onClose }: { onClose: () => void }) {
             onChange={(e) => setDate(e.target.value)}
           />
 
-          <label className="field-label">Photo</label>
+          <label className="field-label">photo</label>
           <input
             ref={inputRef}
             className="text-field"
@@ -45,7 +45,7 @@ export function AddPhotoSheet({ onClose }: { onClose: () => void }) {
           />
 
           <button className="primary-btn" onClick={submit} disabled={!file}>
-            Save Photo
+            save
           </button>
         </div>
       </div>
