@@ -9,8 +9,6 @@ import { ArtworkPanel } from "../../components/ArtworkPanel";
 import { formatDateLong, todayISO, weekStart, addDays } from "../../utils/date";
 import { summarize } from "../format";
 
-const SPARSE_THRESHOLD = 1;
-
 function sumConfidence(values: (number | undefined)[]): number {
   return values.reduce((sum: number, v) => sum + (v ?? 0), 0);
 }
@@ -199,9 +197,7 @@ export function DayPage() {
                   </button>
                 </div>
               ))}
-              {entries.length <= SPARSE_THRESHOLD && (
-                <ArtworkPanel seed={daySeed} />
-              )}
+              <ArtworkPanel seed={daySeed} />
             </div>
           ))}
       </div>

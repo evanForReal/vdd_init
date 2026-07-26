@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { CycleDay, ExerciseTemplate, SetEntry } from "../types";
 import { useApp } from "../context/AppContext";
+import { Sheet } from "./Sheet";
 
 function emptySet(): SetEntry {
   return { reps: "", weight: "", rir: "", completed: false };
@@ -35,7 +36,7 @@ export function ExerciseDetailSheet({
 
   const [sets, setSets] = useState<SetEntry[]>(() => {
     if (existing) return existing.sets.map((s) => ({ ...s, rir: s.rir ?? "" }));
-    const count = lastLog?.sets.length ?? 3;
+    const count = lastLog?.sets.length ?? 2;
     return Array.from({ length: count }, emptySet);
   });
   const [comment, setComment] = useState(existing?.comment ?? "");
@@ -77,28 +78,26 @@ export function ExerciseDetailSheet({
   }
 
   return (
-    <div className="sheet-overlay" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="sheet-handle" />
-        <div className="sheet-header">
-          {editingName ? (
-            <input
-              className="sheet-title-input"
-              value={nameDraft}
-              autoFocus
-              onChange={(e) => setNameDraft(e.target.value)}
-              onBlur={commitName}
-              onKeyDown={(e) => e.key === "Enter" && commitName()}
-            />
-          ) : (
-            <h2 className="sheet-title" onClick={() => setEditingName(true)}>
-              {exercise.name}
-            </h2>
-          )}
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
-            ✕
-          </button>
-        </div>
+    <Sheet onClose={onClose}>
+      <div className="sheet-header">
+        {editingName ? (
+          <input
+            className="sheet-title-input"
+            value={nameDraft}
+            autoFocus
+            onChange={(e) => setNameDraft(e.target.value)}
+            onBlur={commitName}
+            onKeyDown={(e) => e.key === "Enter" && commitName()}
+          />
+        ) : (
+          <h2 className="sheet-title" onClick={() => setEditingName(true)}>
+            {exercise.name}
+          </h2>
+        )}
+        <button className="icon-btn" onClick={onClose} aria-label="Close">
+          ✕
+        </button>
+      </div>
 
         {lastLog && (
           <div className="last-session">
@@ -188,7 +187,6 @@ export function ExerciseDetailSheet({
         >
           remove
         </button>
-      </div>
-    </div>
+    </Sheet>
   );
 }

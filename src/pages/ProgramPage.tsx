@@ -5,7 +5,6 @@ import { getCycleDay, CYCLE_DAY_LABELS } from "../utils/cycle";
 import type { CycleDay } from "../types";
 import { ArtworkPanel } from "../components/ArtworkPanel";
 
-const SPARSE_DAY_THRESHOLD = 2;
 const CYCLE_DAYS: CycleDay[] = ["u1", "l1", "u2", "l2"];
 
 export function ProgramPage() {
@@ -205,9 +204,7 @@ export function ProgramPage() {
           </button>
         )}
 
-        {exercises.length <= SPARSE_DAY_THRESHOLD && (
-          <ArtworkPanel seed={pageSeed} />
-        )}
+        <ArtworkPanel seed={pageSeed} />
       </div>
     </div>
   );

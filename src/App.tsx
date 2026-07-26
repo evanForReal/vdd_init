@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Home } from "./Home";
 import { WorkoutApp } from "./WorkoutApp";
 import { NutritionApp } from "./nutrition/NutritionApp";
+import { TdApp } from "./td/TdApp";
 
-type Mode = "home" | "workout" | "nutrition";
+type Mode = "home" | "workout" | "nutrition" | "td";
 
 export default function App() {
   const [mode, setMode] = useState<Mode>("home");
@@ -14,10 +15,14 @@ export default function App() {
   if (mode === "nutrition") {
     return <NutritionApp onBack={() => setMode("home")} />;
   }
+  if (mode === "td") {
+    return <TdApp onBack={() => setMode("home")} />;
+  }
   return (
     <Home
       onEnterWorkout={() => setMode("workout")}
       onEnterNutrition={() => setMode("nutrition")}
+      onEnterTd={() => setMode("td")}
     />
   );
 }

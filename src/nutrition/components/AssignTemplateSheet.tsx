@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNutrition } from "../context/NutritionContext";
 import { addDays, ORDERED_WEEKDAYS, todayISO, WEEKDAY_SHORT } from "../../utils/date";
+import { Sheet } from "../../components/Sheet";
 
 export function AssignTemplateSheet({
   templateId,
@@ -38,15 +39,13 @@ export function AssignTemplateSheet({
   }
 
   return (
-    <div className="sheet-overlay" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="sheet-handle" />
-        <div className="sheet-header">
-          <h2 className="sheet-title">assign "{templateName}"</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
-            ✕
-          </button>
-        </div>
+    <Sheet onClose={onClose}>
+      <div className="sheet-header">
+        <h2 className="sheet-title">assign "{templateName}"</h2>
+        <button className="icon-btn" onClick={onClose} aria-label="Close">
+          ✕
+        </button>
+      </div>
 
         <div className="form">
           <div className="mode-toggle">
@@ -109,7 +108,6 @@ export function AssignTemplateSheet({
             assign
           </button>
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }

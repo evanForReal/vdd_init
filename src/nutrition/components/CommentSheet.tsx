@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNutrition } from "../context/NutritionContext";
+import { Sheet } from "../../components/Sheet";
 
 export function CommentSheet({
   date,
@@ -22,15 +23,13 @@ export function CommentSheet({
   }
 
   return (
-    <div className="sheet-overlay" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="sheet-handle" />
-        <div className="sheet-header">
-          <h2 className="sheet-title">note</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
-            ✕
-          </button>
-        </div>
+    <Sheet onClose={onClose}>
+      <div className="sheet-header">
+        <h2 className="sheet-title">note</h2>
+        <button className="icon-btn" onClick={onClose} aria-label="Close">
+          ✕
+        </button>
+      </div>
 
         <div className="form">
           <label className="field-label">title</label>
@@ -55,7 +54,6 @@ export function CommentSheet({
             save
           </button>
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }

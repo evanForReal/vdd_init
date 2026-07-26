@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNutrition } from "../context/NutritionContext";
 import { formatDateLong } from "../../utils/date";
+import { Sheet } from "../../components/Sheet";
 
 export function PlannedItemSheet({
   date,
@@ -39,16 +40,14 @@ export function PlannedItemSheet({
   }
 
   return (
-    <div className="sheet-overlay" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="sheet-handle" />
-        <div className="sheet-header">
-          <h2 className="sheet-title">plan food</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
-            ✕
-          </button>
-        </div>
-        <p className="hint">for {formatDateLong(date)}</p>
+    <Sheet onClose={onClose}>
+      <div className="sheet-header">
+        <h2 className="sheet-title">plan food</h2>
+        <button className="icon-btn" onClick={onClose} aria-label="Close">
+          ✕
+        </button>
+      </div>
+      <p className="hint">for {formatDateLong(date)}</p>
 
         <div className="form">
           <label className="field-label">name (optional)</label>
@@ -101,7 +100,6 @@ export function PlannedItemSheet({
             add to plan
           </button>
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }
