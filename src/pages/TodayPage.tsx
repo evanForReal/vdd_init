@@ -6,8 +6,6 @@ import { ArtworkPanel } from "../components/ArtworkPanel";
 import { daysBetween, formatDateLong, todayISO } from "../utils/date";
 import { CYCLE_DAY_LABELS, getCycleDay } from "../utils/cycle";
 
-const SPARSE_DAY_THRESHOLD = 2;
-
 export function TodayPage() {
   const { activeMesocycle, getLogFor, insertRestDay } = useApp();
   const [openExercise, setOpenExercise] = useState<ExerciseTemplate | null>(
@@ -106,9 +104,7 @@ export function TodayPage() {
               </button>
             );
           })}
-          {exercises.length <= SPARSE_DAY_THRESHOLD && (
-            <ArtworkPanel seed={`today-sparse-${date}`} />
-          )}
+          <ArtworkPanel seed={`today-sparse-${date}`} />
         </div>
       )}
 
