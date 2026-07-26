@@ -6,7 +6,8 @@ import { AddTaskRow } from "../components/AddTaskRow";
 import { GhostCell } from "../components/GhostCell";
 import { SprintSheet } from "../components/SprintSheet";
 import { SprintBanner } from "../components/SprintBanner";
-import { WeekListFoldout } from "../components/WeekListFoldout";
+import { WeekListSheet } from "../components/WeekListSheet";
+import { TdMenu } from "../components/TdMenu";
 import { FocusSection } from "../components/FocusSection";
 import { ArtworkPanel } from "../../components/ArtworkPanel";
 import { formatDateLong, todayISO, weekdayIndex, addDays } from "../../utils/date";
@@ -17,6 +18,7 @@ export function DayPage() {
   const [selectedDate, setSelectedDate] = useState(today);
   const [weekAnchor, setWeekAnchor] = useState(weekStartSunday(today));
   const [sprintOpen, setSprintOpen] = useState(false);
+  const [menuSheet, setMenuSheet] = useState<"goals" | "joys" | null>(null);
   const [daySeed] = useState(() => `td-day-${Math.random().toString(36).slice(2)}`);
 
   const {
@@ -53,9 +55,16 @@ export function DayPage() {
 
   return (
     <div className="page">
-      <header className="today-header">
-        <div className="today-date">{formatDateLong(selectedDate)}</div>
-        <div className="meso-name">to-do</div>
+      <header className="today-header td-header">
+        <div>
+          <div className="today-date">{formatDateLong(selectedDate)}</div>
+          <div className="meso-name">to-do</div>
+        </div>
+        <TdMenu
+          onWeekGoals={() => setMenuSheet("goals")}
+          onSmallJoys={() => setMenuSheet("joys")}
+          onSprint={() => setSprintOpen(true)}
+        />
       </header>
 
       <WeekStrip
@@ -66,24 +75,7 @@ export function DayPage() {
         onNextWeek={() => setWeekAnchor((w) => addDays(w, 7))}
       />
 
-      <WeekListFoldout
-        weekStart={weekAnchor}
-        kind="goal"
-        title="week goals"
-        placeholder="a goal for this week"
-      />
-      <WeekListFoldout
-        weekStart={weekAnchor}
-        kind="joy"
-        title="small joys"
-        placeholder="a small joy for this week"
-      />
-
       {activeSprint && activeSprint.date === selectedDate && <SprintBanner sprint={activeSprint} />}
-
-      <button className="text-btn rest-day-btn" onClick={() => setSprintOpen(true)}>
-        start a sprint
-      </button>
 
       {activeScopes.length > 0 && (
         <div className="scope-banner">
@@ -160,6 +152,25 @@ export function DayPage() {
       <ArtworkPanel seed={daySeed} />
 
       {sprintOpen && <SprintSheet date={selectedDate} onClose={() => setSprintOpen(false)} />}
+
+      {menuSheet === "goals" && (
+        <WeekListSheet
+          weekStart={weekAnchor}
+          kind="goal"
+          title="week goals"
+          placeholder="a goal for this week"
+          onClose={() => setMenuSheet(null)}
+        />
+      )}
+      {menuSheet === "joys" && (
+        <WeekListSheet
+          weekStart={weekAnchor}
+          kind="joy"
+          title="small joys"
+          placeholder="a small joy for this week"
+          onClose={() => setMenuSheet(null)}
+        />
+      )}
     </div>
   );
 }

@@ -95,6 +95,13 @@ button {
   padding: 4px 2px 18px;
 }
 
+.td-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .today-date {
   font-family: var(--serif);
   font-size: 25px;
@@ -802,10 +809,23 @@ button {
   line-height: 1.25;
 }
 
-.orb-column {
+.orb-grid {
+  display: flex;
+  align-items: flex-start;
+  gap: 26px;
+}
+
+.orb-col {
   display: flex;
   flex-direction: column;
   gap: 28px;
+}
+
+/* Shifts the right column down by half an orb-plus-gap, nestling its
+   first orb into the crevice between the two orbs in the left column.
+   A future second orb in this column stacks below with the same gap. */
+.orb-col-offset {
+  padding-top: 80px;
 }
 
 .orb {
@@ -1903,4 +1923,60 @@ button {
   font-size: 11px;
   color: var(--text-faint);
   margin-top: 2px;
+}
+
+/* ---------- td menu ---------- */
+
+.td-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.td-menu-btn {
+  margin-top: 2px;
+}
+
+.td-menu-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 29;
+}
+
+.td-menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lift);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  min-width: 168px;
+  overflow: hidden;
+}
+
+.td-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.td-menu-item:active {
+  background: var(--surface-2);
+}
+
+.td-menu-icon {
+  width: 17px;
+  height: 17px;
+  color: var(--text-dim);
+  flex-shrink: 0;
 }

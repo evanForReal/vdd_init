@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { useTodo } from "../context/TodoContext";
-import { ChevronIcon } from "../../nutrition/components/Icons";
+import { Sheet } from "../../components/Sheet";
 
-export function WeekListFoldout({
+export function WeekListSheet({
   weekStart,
   kind,
   title,
   placeholder,
+  onClose,
 }: {
   weekStart: string;
   kind: "goal" | "joy";
   title: string;
   placeholder: string;
+  onClose: () => void;
 }) {
   const { weekListFor, addWeekListItem, toggleWeekListItem, removeWeekListItem } = useTodo();
-  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const items = weekListFor(weekStart, kind);
 
@@ -25,19 +26,16 @@ export function WeekListFoldout({
   }
 
   return (
-    <div className="action-foldout">
-      <button className="action-foldout-toggle" onClick={() => setOpen((o) => !o)}>
-        <span>{title}</span>
-        {items.length > 0 && (
-          <span className="template-block-tally">
-            {items.filter((i) => i.completed).length}/{items.length}
-          </span>
-        )}
-        <ChevronIcon className={`foldout-chevron ${open ? "open" : ""}`} />
-      </button>
+    <Sheet onClose={onClose}>
+      <div className="sheet-header">
+        <h2 className="sheet-title">{title}</h2>
+        <button className="icon-btn" onClick={onClose} aria-label="Close">
+          ✕
+        </button>
+      </div>
 
-      {open && (
-        <div className="action-foldout-panel">
+      {items.length > 0 && (
+        <div className="task-list">
           {items.map((item) => (
             <div className={`task-row ${item.completed ? "done" : ""}`} key={item.id}>
               <button
@@ -59,22 +57,23 @@ export function WeekListFoldout({
               </button>
             </div>
           ))}
-          <div className="add-task-row">
-            <div className="add-task-main">
-              <input
-                className="text-field inline add-task-input"
-                placeholder={placeholder}
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && submit()}
-              />
-              <button className="icon-btn add-task-submit" onClick={submit} aria-label="Add">
-                +
-              </button>
-            </div>
-          </div>
         </div>
       )}
-    </div>
+
+      <div className="add-task-row">
+        <div className="add-task-main">
+          <input
+            className="text-field inline add-task-input"
+            placeholder={placeholder}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+          />
+          <button className="icon-btn add-task-submit" onClick={submit} aria-label="Add">
+            +
+          </button>
+        </div>
+      </div>
+    </Sheet>
   );
 }
