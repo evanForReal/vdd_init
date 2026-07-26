@@ -15,7 +15,7 @@ import type {
   SetEntry,
 } from "../types";
 import { loadState, saveState } from "../storage";
-import { addMonths, parseISODate } from "../utils/date";
+import { addMonths, parseISODate, todayISO } from "../utils/date";
 
 function uid(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
@@ -29,6 +29,7 @@ interface AppContextValue {
   removeExercise: (cycleDay: CycleDay, exerciseId: string) => void;
   renameExercise: (cycleDay: CycleDay, exerciseId: string, name: string) => void;
   insertRestDay: (date: string) => void;
+  startMesocycleToday: () => void;
   getLogFor: (date: string, exerciseId: string) => SessionLog | undefined;
   getLastLogBefore: (
     date: string,
@@ -129,6 +130,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }
 
+  function startMesocycleToday() {
+    const today = todayISO();
+    setState((s) => ({
+      ...s,
+      mesocycles: s.mesocycles.map((m) =>
+        m.id === s.activeMesocycleId
+          ? {
+              ...m,
+              startDate: today,
+              endDate: addMonths(today, 3),
+              insertedRestDates: [],
+              cycleStartConfirmed: true,
+            }
+          : m
+      ),
+    }));
+  }
+
   function getLogFor(date: string, exerciseId: string) {
     return state.logs[`${date}_${exerciseId}`];
   }
@@ -174,6 +193,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     removeExercise,
     renameExercise,
     insertRestDay,
+    startMesocycleToday,
     getLogFor,
     getLastLogBefore,
     saveLog,

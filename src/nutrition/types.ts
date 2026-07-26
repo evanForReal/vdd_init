@@ -11,6 +11,9 @@ export interface FoodEntry {
   protein: ConfidenceValue;
   calories: ConfidenceValue;
   createdAt: number;
+  /** Set when this entry was logged under a bullet item of an assigned template block. */
+  templateBlockId?: string;
+  bulletIndex?: number;
 }
 
 export interface DayComment {
@@ -42,21 +45,32 @@ export interface ProgressPhotoMeta {
   createdAt: number;
 }
 
-export interface TemplateItem {
-  label: string;
-  protein: ConfidenceValue;
-  calories: ConfidenceValue;
-}
-
+// A template is just a plain-text bullet list — no macro data, no
+// processing of the lines beyond splitting them. It exists to be assigned
+// onto a day, where each bullet becomes its own loggable slot.
 export interface MealTemplate {
   id: string;
   name: string;
-  items: TemplateItem[];
+  items: string[];
   createdAt: number;
 }
 
-export interface PlannedItem extends TemplateItem {
+// A snapshot of a template assigned to a specific date — copied at
+// assignment time so later edits to the template don't retroactively
+// change days it was already assigned to.
+export interface AssignedTemplate {
   id: string;
+  templateId: string;
+  templateName: string;
+  date: string;
+  items: string[];
+}
+
+export interface PlannedItem {
+  id: string;
+  label: string;
+  protein: ConfidenceValue;
+  calories: ConfidenceValue;
   status: "pending" | "confirmed" | "skipped";
 }
 
@@ -74,4 +88,5 @@ export interface NutritionState {
   photos: ProgressPhotoMeta[];
   templates: MealTemplate[];
   plannedDays: PlannedDay[];
+  assignedTemplates: AssignedTemplate[];
 }

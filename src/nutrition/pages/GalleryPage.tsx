@@ -18,25 +18,24 @@ const variants = {
     custom === "grid" ? { opacity: 0 } : { x: custom < 0 ? 320 : -320, opacity: 0 },
 };
 
+// Object URLs are cached in NutritionContext and only revoked on delete, so
+// this hook just reads from that cache — no per-mount revoke, no re-fetch
+// when the same photo remounts across single/grid view switches.
 function usePhotoUrl(id: string | undefined) {
   const { getPhotoUrl } = useNutrition();
   const [url, setUrl] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    let objectUrl: string | undefined;
     let cancelled = false;
     if (id) {
       getPhotoUrl(id).then((u) => {
-        if (cancelled) return;
-        objectUrl = u;
-        setUrl(u);
+        if (!cancelled) setUrl(u);
       });
     } else {
       setUrl(undefined);
     }
     return () => {
       cancelled = true;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -46,9 +45,11 @@ function usePhotoUrl(id: string | undefined) {
 
 function GridThumb({
   photo,
+  index,
   onSelect,
 }: {
   photo: ProgressPhotoMeta;
+  index: number;
   onSelect: () => void;
 }) {
   const url = usePhotoUrl(photo.id);
@@ -58,6 +59,9 @@ function GridThumb({
       className="gallery-grid-item"
       onClick={onSelect}
       aria-label={`View photo from ${photo.date}`}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.24, delay: Math.min(index * 0.015, 0.3) }}
     >
       {url && <img className="gallery-grid-thumb" src={url} alt={photo.date} />}
     </motion.button>
@@ -65,7 +69,7 @@ function GridThumb({
 }
 
 export function GalleryPage() {
-  const { photos, removePhoto, updatePhotoDate } = useNutrition();
+  const { photos, removePhoto, updatePhotoDate, getPhotoUrl } = useNutrition();
   const [[index, direction], setPage] = useState([photos.length - 1, 0]);
   const [exitVelocity, setExitVelocity] = useState(0);
   const [adding, setAdding] = useState(false);
@@ -78,6 +82,16 @@ export function GalleryPage() {
     setPage(([i]) => [Math.min(i, photos.length - 1), 0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [photos.length]);
+
+  // Warm the URL cache for every photo in the background so the grid can
+  // mount instantly instead of waiting on each thumbnail's own IndexedDB
+  // round trip the first time you switch to it.
+  useEffect(() => {
+    photos.forEach((p) => {
+      getPhotoUrl(p.id);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photos]);
 
   const clampedIndex = Math.max(0, Math.min(index, photos.length - 1));
   const current = photos[clampedIndex];
@@ -137,8 +151,8 @@ export function GalleryPage() {
 
         {view === "grid" ? (
           <div className="gallery-grid">
-            {photos.map((p) => (
-              <GridThumb key={p.id} photo={p} onSelect={() => selectFromGrid(p.id)} />
+            {photos.map((p, i) => (
+              <GridThumb key={p.id} photo={p} index={i} onSelect={() => selectFromGrid(p.id)} />
             ))}
           </div>
         ) : (

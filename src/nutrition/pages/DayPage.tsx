@@ -4,6 +4,7 @@ import { WeekStrip } from "../components/WeekStrip";
 import { ActionFoldout } from "../components/ActionFoldout";
 import { FoodEntrySheet } from "../components/FoodEntrySheet";
 import { ChevronIcon } from "../components/Icons";
+import { TemplateBlockCard } from "../components/TemplateBlockCard";
 import { ArtworkPanel } from "../../components/ArtworkPanel";
 import { formatDateLong, todayISO, weekStart, addDays } from "../../utils/date";
 import { summarize } from "../format";
@@ -25,6 +26,7 @@ export function DayPage() {
     plannedItemsForDate,
     confirmPlannedItem,
     skipPlannedItem,
+    assignedTemplatesForDate,
   } = useNutrition();
 
   const today = todayISO();
@@ -41,6 +43,7 @@ export function DayPage() {
   const comments = commentsForDate(selectedDate);
   const freeDay = isFreeDay(selectedDate);
   const planned = plannedItemsForDate(selectedDate);
+  const templateBlocks = assignedTemplatesForDate(selectedDate);
 
   const totalCalories = entries.reduce((sum, e) => sum + e.calories.value, 0);
   const totalProtein = entries.reduce((sum, e) => sum + e.protein.value, 0);
@@ -134,6 +137,19 @@ export function DayPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {templateBlocks.length > 0 && (
+        <div className="template-block-list">
+          {templateBlocks.map((block) => (
+            <TemplateBlockCard
+              key={block.id}
+              block={block}
+              date={selectedDate}
+              dayTarget={calorieTarget}
+            />
+          ))}
         </div>
       )}
 

@@ -15,6 +15,7 @@ export function ProgramPage() {
     addExercise,
     removeExercise,
     renameExercise,
+    startMesocycleToday,
   } = useApp();
 
   const [selectedDay, setSelectedDay] = useState<CycleDay>("u1");
@@ -99,6 +100,7 @@ export function ProgramPage() {
           {formatDateShort(activeMesocycle.startDate)} –{" "}
           {formatDateShort(activeMesocycle.endDate)}
         </div>
+
         <button
           className="text-btn"
           onClick={() => {
@@ -114,6 +116,28 @@ export function ProgramPage() {
           new mesocycle
         </button>
       </header>
+
+      {activeMesocycle.cycleStartConfirmed ? (
+        <label className="meso-start-confirmed">
+          <input type="checkbox" checked readOnly disabled />
+          <span>mesocycle started today</span>
+        </label>
+      ) : (
+        <button
+          className="text-btn rest-day-btn"
+          onClick={() => {
+            if (
+              confirm(
+                "start this mesocycle today? today becomes u1, and any inserted rest days are cleared."
+              )
+            ) {
+              startMesocycleToday();
+            }
+          }}
+        >
+          start mesocycle today
+        </button>
+      )}
 
       <div className="weekday-tabs">
         {CYCLE_DAYS.map((cd) => (

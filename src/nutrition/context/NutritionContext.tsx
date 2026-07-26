@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import type {
+  AssignedTemplate,
   ConfidenceValue,
   DayComment,
   FoodEntry,
@@ -15,7 +16,6 @@ import type {
   NutritionTargets,
   PlannedItem,
   ProgressPhotoMeta,
-  TemplateItem,
 } from "../types";
 import {
   deletePhotoBlob,
@@ -30,6 +30,12 @@ function uid(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
 
+// Object URLs are cached by photo id so switching between single/grid views
+// (or revisiting the gallery) doesn't re-read the blob from IndexedDB and
+// mint a new URL every time — only removePhoto revokes and evicts.
+const photoUrlCache = new Map<string, string>();
+const photoUrlLoads = new Map<string, Promise<string | undefined>>();
+
 interface NutritionContextValue {
   state: NutritionState;
   setTargets: (targets: NutritionTargets) => void;
@@ -38,7 +44,8 @@ interface NutritionContextValue {
     date: string,
     label: string,
     protein: ConfidenceValue,
-    calories: ConfidenceValue
+    calories: ConfidenceValue,
+    templateTag?: { templateBlockId: string; bulletIndex: number }
   ) => void;
   removeFoodEntry: (id: string) => void;
   commentsForDate: (date: string) => DayComment[];
@@ -54,8 +61,16 @@ interface NutritionContextValue {
   updatePhotoDate: (id: string, date: string) => void;
   getPhotoUrl: (id: string) => Promise<string | undefined>;
   templates: MealTemplate[];
-  createTemplate: (name: string, items: TemplateItem[]) => void;
+  createTemplate: (name: string, items: string[]) => void;
   deleteTemplate: (id: string) => void;
+  assignedTemplatesForDate: (date: string) => AssignedTemplate[];
+  removeAssignedTemplate: (id: string) => void;
+  entriesForTemplateBullet: (
+    date: string,
+    templateBlockId: string,
+    bulletIndex: number
+  ) => FoodEntry[];
+  templateBlockConsumedCalories: (templateBlockId: string) => number;
   plannedItemsForDate: (date: string) => PlannedItem[];
   upcomingPlannedDays: (fromDate: string, days: number) => { date: string; items: PlannedItem[] }[];
   addPlannedItem: (
@@ -97,7 +112,8 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
     date: string,
     label: string,
     protein: ConfidenceValue,
-    calories: ConfidenceValue
+    calories: ConfidenceValue,
+    templateTag?: { templateBlockId: string; bulletIndex: number }
   ) {
     const entry: FoodEntry = {
       id: uid(),
@@ -106,6 +122,7 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
       protein,
       calories,
       createdAt: Date.now(),
+      ...templateTag,
     };
     setState((s) => ({ ...s, entries: [...s.entries, entry] }));
   }
@@ -165,7 +182,7 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
     }));
   }
 
-  function createTemplate(name: string, items: TemplateItem[]) {
+  function createTemplate(name: string, items: string[]) {
     const template: MealTemplate = {
       id: uid(),
       name: name.trim() || "template",
@@ -177,6 +194,36 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
 
   function deleteTemplate(id: string) {
     setState((s) => ({ ...s, templates: s.templates.filter((t) => t.id !== id) }));
+  }
+
+  function assignedTemplatesForDate(date: string): AssignedTemplate[] {
+    return state.assignedTemplates.filter((a) => a.date === date);
+  }
+
+  function removeAssignedTemplate(id: string) {
+    setState((s) => ({
+      ...s,
+      assignedTemplates: s.assignedTemplates.filter((a) => a.id !== id),
+    }));
+  }
+
+  function entriesForTemplateBullet(
+    date: string,
+    templateBlockId: string,
+    bulletIndex: number
+  ): FoodEntry[] {
+    return state.entries.filter(
+      (e) =>
+        e.date === date &&
+        e.templateBlockId === templateBlockId &&
+        e.bulletIndex === bulletIndex
+    );
+  }
+
+  function templateBlockConsumedCalories(templateBlockId: string): number {
+    return state.entries
+      .filter((e) => e.templateBlockId === templateBlockId)
+      .reduce((sum, e) => sum + e.calories.value, 0);
   }
 
   function plannedItemsForDate(date: string): PlannedItem[] {
@@ -255,10 +302,14 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
   function assignTemplateToDate(templateId: string, date: string) {
     const template = state.templates.find((t) => t.id === templateId);
     if (!template) return;
-    appendPlannedItems(
+    const block: AssignedTemplate = {
+      id: uid(),
+      templateId: template.id,
+      templateName: template.name,
       date,
-      template.items.map((item) => ({ ...item, id: uid(), status: "pending" as const }))
-    );
+      items: [...template.items],
+    };
+    setState((s) => ({ ...s, assignedTemplates: [...s.assignedTemplates, block] }));
   }
 
   function assignTemplateToRange(
@@ -287,6 +338,12 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
 
   async function removePhoto(id: string) {
     await deletePhotoBlob(id);
+    const cached = photoUrlCache.get(id);
+    if (cached) {
+      URL.revokeObjectURL(cached);
+      photoUrlCache.delete(id);
+    }
+    photoUrlLoads.delete(id);
     setState((s) => ({ ...s, photos: s.photos.filter((p) => p.id !== id) }));
   }
 
@@ -297,9 +354,20 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
     }));
   }
 
-  async function getPhotoUrl(id: string) {
-    const blob = await loadPhotoBlob(id);
-    return blob ? URL.createObjectURL(blob) : undefined;
+  function getPhotoUrl(id: string): Promise<string | undefined> {
+    const cached = photoUrlCache.get(id);
+    if (cached) return Promise.resolve(cached);
+    const inFlight = photoUrlLoads.get(id);
+    if (inFlight) return inFlight;
+    const promise = loadPhotoBlob(id).then((blob) => {
+      photoUrlLoads.delete(id);
+      if (!blob) return undefined;
+      const url = URL.createObjectURL(blob);
+      photoUrlCache.set(id, url);
+      return url;
+    });
+    photoUrlLoads.set(id, promise);
+    return promise;
   }
 
   const photos = useMemo(
@@ -328,6 +396,10 @@ export function NutritionProvider({ children }: { children: ReactNode }) {
     templates: state.templates,
     createTemplate,
     deleteTemplate,
+    assignedTemplatesForDate,
+    removeAssignedTemplate,
+    entriesForTemplateBullet,
+    templateBlockConsumedCalories,
     plannedItemsForDate,
     upcomingPlannedDays,
     addPlannedItem,
