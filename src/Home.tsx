@@ -4,9 +4,11 @@ import { todayISO } from "./utils/date";
 export function Home({
   onEnterWorkout,
   onEnterNutrition,
+  onEnterTd,
 }: {
   onEnterWorkout: () => void;
   onEnterNutrition: () => void;
+  onEnterTd: () => void;
 }) {
   return (
     <div className="home-shell">
@@ -22,6 +24,9 @@ export function Home({
           </button>
           <button className="orb orb-n" onClick={onEnterNutrition}>
             <span className="orb-label">n</span>
+          </button>
+          <button className="orb orb-td" onClick={onEnterTd}>
+            <span className="orb-label">td</span>
           </button>
         </div>
       </div>
