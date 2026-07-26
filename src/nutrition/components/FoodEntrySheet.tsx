@@ -4,9 +4,15 @@ import { useNutrition } from "../context/NutritionContext";
 export function FoodEntrySheet({
   date,
   onClose,
+  title = "add food",
+  templateBlockId,
+  bulletIndex,
 }: {
   date: string;
   onClose: () => void;
+  title?: string;
+  templateBlockId?: string;
+  bulletIndex?: number;
 }) {
   const { addFoodEntry } = useNutrition();
   const [label, setLabel] = useState("");
@@ -32,7 +38,10 @@ export function FoodEntrySheet({
       {
         value: Number.isNaN(caloriesValue) ? 0 : caloriesValue,
         confidence: caloriesConfidence ? parseFloat(caloriesConfidence) : undefined,
-      }
+      },
+      templateBlockId !== undefined && bulletIndex !== undefined
+        ? { templateBlockId, bulletIndex }
+        : undefined
     );
     onClose();
   }
@@ -42,7 +51,7 @@ export function FoodEntrySheet({
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <div className="sheet-handle" />
         <div className="sheet-header">
-          <h2 className="sheet-title">add food</h2>
+          <h2 className="sheet-title">{title}</h2>
           <button className="icon-btn" onClick={onClose} aria-label="Close">
             ✕
           </button>

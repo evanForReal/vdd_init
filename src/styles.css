@@ -226,6 +226,22 @@ button {
   margin-top: 8px;
 }
 
+.meso-start-confirmed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  opacity: 0.45;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.meso-start-confirmed input[type="checkbox"] {
+  accent-color: var(--accent-strong);
+}
+
 .weekday-tabs {
   display: flex;
   gap: 6px;
@@ -318,6 +334,13 @@ button {
 .text-field.inline {
   flex: 1;
   padding: 8px 10px;
+}
+
+.textarea-field {
+  font-family: inherit;
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.5;
 }
 
 .hint {
@@ -680,6 +703,7 @@ button {
     rgba(21, 18, 15, 0) 45%,
     rgba(21, 18, 15, 0.85) 100%
   );
+  pointer-events: none;
 }
 
 .artwork-panel-credit {
@@ -688,6 +712,7 @@ button {
   right: 0;
   bottom: 0;
   padding: 16px 84px 14px 16px;
+  pointer-events: none;
 }
 
 .artwork-panel-title {
@@ -1269,6 +1294,59 @@ button {
 .upcoming-plan-meta {
   font-size: 12px;
   color: var(--text-faint);
+}
+
+.template-block-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.template-block-tally {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-faint);
+  margin-right: 4px;
+}
+
+.template-bullet {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.template-bullet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.template-bullet-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.inline-add-btn {
+  flex-shrink: 0;
+  width: auto;
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
+.template-bullet-entries {
+  gap: 6px;
+}
+
+.template-bullet-entries .food-card {
+  padding: 10px 12px;
+}
+
+.template-block-remove {
+  color: var(--text-faint);
+  align-self: flex-start;
 }
 
 /* ---------- FAB ---------- */

@@ -25,6 +25,8 @@ export interface Mesocycle {
   schedule: Schedule;
   /** Dates where the user manually inserted an extra rest day, shifting the cycle for every later date. */
   insertedRestDates: string[];
+  /** Whether "start mesocycle today" has already been used — meant to fire once per mesocycle. */
+  cycleStartConfirmed?: boolean;
 }
 
 export interface SetEntry {
