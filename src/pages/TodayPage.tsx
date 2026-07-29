@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 import type { ExerciseTemplate } from "../types";
 import { ExerciseDetailSheet } from "../components/ExerciseDetailSheet";
 import { ArtworkPanel } from "../components/ArtworkPanel";
-import { daysBetween, formatDateLong, todayISO } from "../utils/date";
+import { addDays, daysBetween, formatDateLong, todayISO } from "../utils/date";
 import { CYCLE_DAY_LABELS, getCycleDay } from "../utils/cycle";
 
 export function TodayPage() {
@@ -11,8 +11,8 @@ export function TodayPage() {
   const [openExercise, setOpenExercise] = useState<ExerciseTemplate | null>(
     null
   );
-
-  const date = todayISO();
+  const [date, setDate] = useState(todayISO());
+  const isToday = date === todayISO();
 
   if (!activeMesocycle) {
     return (
@@ -33,11 +33,27 @@ export function TodayPage() {
 
   return (
     <div className="page">
-      <header className="today-header">
-        <div className="today-date">{formatDateLong(date)}</div>
-        <div className="meso-name">
-          {activeMesocycle.name} · {CYCLE_DAY_LABELS[cycleDay]}
+      <header className="today-header day-nav-header">
+        <button
+          className="week-nav-btn"
+          onClick={() => setDate((d) => addDays(d, -1))}
+          aria-label="Previous day"
+        >
+          ‹
+        </button>
+        <div className="day-nav-center">
+          <div className="today-date">{formatDateLong(date)}</div>
+          <div className="meso-name">
+            {activeMesocycle.name} · {CYCLE_DAY_LABELS[cycleDay]}
+          </div>
         </div>
+        <button
+          className="week-nav-btn"
+          onClick={() => setDate((d) => addDays(d, 1))}
+          aria-label="Next day"
+        >
+          ›
+        </button>
       </header>
 
       {daysLeft <= 7 && daysLeft >= 0 && (
@@ -57,12 +73,15 @@ export function TodayPage() {
         <button
           className="text-btn rest-day-btn"
           onClick={() => {
-            if (confirm("insert a rest day today? pushes every future day out by one.")) {
+            const prompt = isToday
+              ? "insert a rest day today? pushes every future day out by one."
+              : "insert a rest day on this date? pushes every future day out by one.";
+            if (confirm(prompt)) {
               insertRestDay(date);
             }
           }}
         >
-          insert rest day today
+          insert rest day {isToday ? "today" : "here"}
         </button>
       )}
 
