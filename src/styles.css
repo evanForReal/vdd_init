@@ -95,6 +95,17 @@ button {
   padding: 4px 2px 18px;
 }
 
+.day-nav-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.day-nav-center {
+  flex: 1;
+  min-width: 0;
+}
+
 .td-header {
   display: flex;
   align-items: flex-start;
