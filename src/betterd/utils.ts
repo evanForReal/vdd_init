@@ -1,4 +1,4 @@
-import type { Exercise, Lesson, Module, Quote, VocabTerm } from "./types";
+import type { Exercise, Lesson, LanguageCode, Module, Quote, VocabTerm } from "./types";
 
 export function hashString(input: string): number {
   let hash = 0;
@@ -139,6 +139,49 @@ export function generateFinalTest(module: Module, coreLessons: Lesson[]): Lesson
     title: "final test",
     size: "large",
     kind: "final",
+    exercises: buildDrillExercises(terms, Math.min(20, Math.max(10, terms.length)), seed),
+  };
+}
+
+// There's no explicit difficulty tag on exercises, so "hard" is approximated
+// by drilling only medium/large lessons — the module's more advanced later
+// lessons — falling back to the full set if a module is all "small" lessons.
+function harderLessons(lessons: Lesson[]): Lesson[] {
+  const filtered = lessons.filter((l) => l.size !== "small");
+  return filtered.length ? filtered : lessons;
+}
+
+// A "test in" placement check for a single module: pass it (>=80%) and the
+// whole module — every core lesson, both reviews, and the final — gets
+// marked complete, skipping the grind for material you already know.
+export function generateModulePlacementTest(module: Module, coreLessons: Lesson[]): Lesson {
+  const terms = collectTerms(harderLessons(coreLessons));
+  const seed = `${module.id}-placement`;
+  return {
+    id: `${module.id}-placement`,
+    moduleId: module.id,
+    language: module.language,
+    title: "level check",
+    size: "large",
+    kind: "placement",
+    exercises: buildDrillExercises(terms, Math.min(16, Math.max(8, terms.length)), seed),
+  };
+}
+
+// The language-wide version: draws from every currently-authored (non-
+// placeholder) module's harder lessons, and on a pass marks all of them
+// complete at once. `allCoreLessons` is every core lesson across every
+// active module for this language.
+export function generateLanguagePlacementTest(language: LanguageCode, allCoreLessons: Lesson[]): Lesson {
+  const terms = collectTerms(harderLessons(allCoreLessons));
+  const seed = `${language}-placement-all`;
+  return {
+    id: `${language}-placement-all`,
+    moduleId: "__all__",
+    language,
+    title: "level check",
+    size: "large",
+    kind: "placement",
     exercises: buildDrillExercises(terms, Math.min(20, Math.max(10, terms.length)), seed),
   };
 }

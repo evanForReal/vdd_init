@@ -14,7 +14,13 @@ import type {
 } from "../types";
 import { loadBetterDState, saveBetterDState } from "../storage";
 import { MODULES, LESSONS, QUOTES } from "../content";
-import { generateFinalTest, generateReviewLesson, pickQuote } from "../utils";
+import {
+  generateFinalTest,
+  generateLanguagePlacementTest,
+  generateModulePlacementTest,
+  generateReviewLesson,
+  pickQuote,
+} from "../utils";
 import { addDays, todayISO } from "../../utils/date";
 
 export type ModuleStatus = "placeholder" | "locked" | "available" | "in-progress" | "completed";
@@ -33,8 +39,17 @@ function coreLessonsOf(module: Module): Lesson[] {
   return module.lessonIds.map((id) => LESSONS[id]).filter((l): l is Lesson => !!l);
 }
 
+function activeCoreLessonsForLanguage(language: LanguageCode): Lesson[] {
+  return MODULES[language].filter((m) => !m.placeholder).flatMap((m) => coreLessonsOf(m));
+}
+
 function resolveLesson(lessonId: string): Lesson | undefined {
   if (LESSONS[lessonId]) return LESSONS[lessonId];
+  const langPlacementMatch = lessonId.match(/^([a-z]{2})-placement-all$/);
+  if (langPlacementMatch) {
+    const language = langPlacementMatch[1] as LanguageCode;
+    return generateLanguagePlacementTest(language, activeCoreLessonsForLanguage(language));
+  }
   const finalMatch = lessonId.match(/^(.+)-final$/);
   if (finalMatch) {
     const module = findModuleById(finalMatch[1]);
@@ -46,6 +61,12 @@ function resolveLesson(lessonId: string): Lesson | undefined {
     const module = findModuleById(reviewMatch[1]);
     if (!module) return undefined;
     return generateReviewLesson(module, coreLessonsOf(module), Number(reviewMatch[2]) as 1 | 2);
+  }
+  const placementMatch = lessonId.match(/^(.+)-placement$/);
+  if (placementMatch) {
+    const module = findModuleById(placementMatch[1]);
+    if (!module) return undefined;
+    return generateModulePlacementTest(module, coreLessonsOf(module));
   }
   return undefined;
 }
@@ -64,11 +85,19 @@ interface BetterDContextValue {
     correctCount: number,
     totalCount: number
   ) => void;
+  completePlacementTest: (
+    targetModuleIds: string[],
+    language: LanguageCode,
+    correctCount: number,
+    totalCount: number
+  ) => boolean;
   isLessonCompleted: (language: LanguageCode, lessonId: string) => boolean;
   addNote: (moduleId: string, lessonId: string, language: LanguageCode, text: string) => void;
   notesForModule: (moduleId: string) => BetterDNote[];
   quoteForLesson: (lessonId: string, language: LanguageCode) => ReturnType<typeof pickQuote> | undefined;
   streak: BetterDState["streak"];
+  showTransliteration: boolean;
+  toggleTransliteration: () => void;
 }
 
 const BetterDContext = createContext<BetterDContextValue | null>(null);
@@ -155,6 +184,49 @@ export function BetterDProvider({ children }: { children: ReactNode }) {
     });
   }
 
+  function completePlacementTest(
+    targetModuleIds: string[],
+    language: LanguageCode,
+    correctCount: number,
+    totalCount: number
+  ): boolean {
+    const passed = totalCount > 0 && correctCount / totalCount >= 0.8;
+    setState((s) => {
+      let completions = s.progress[language].completions;
+      if (passed) {
+        const now = Date.now();
+        const idsToMark = targetModuleIds.flatMap((moduleId) => {
+          const module = findModuleById(moduleId);
+          return module ? lessonSequenceIds(module) : [];
+        });
+        for (const id of idsToMark) {
+          if (!completions.some((c) => c.lessonId === id)) {
+            completions = [...completions, { lessonId: id, completedAt: now, correctCount: 1, totalCount: 1 }];
+          }
+        }
+      }
+
+      let streak = s.streak;
+      const today = todayISO();
+      if (s.streak.lastPracticeDate !== today) {
+        const isConsecutive = s.streak.lastPracticeDate === addDays(today, -1);
+        const current = isConsecutive ? s.streak.current + 1 : 1;
+        streak = { current, longest: Math.max(s.streak.longest, current), lastPracticeDate: today };
+      }
+
+      return {
+        ...s,
+        progress: { ...s.progress, [language]: { language, completions } },
+        streak,
+      };
+    });
+    return passed;
+  }
+
+  function toggleTransliteration() {
+    setState((s) => ({ ...s, showTransliteration: !s.showTransliteration }));
+  }
+
   function addNote(moduleId: string, lessonId: string, language: LanguageCode, text: string) {
     if (!text.trim()) return;
     setState((s) => ({
@@ -192,11 +264,14 @@ export function BetterDProvider({ children }: { children: ReactNode }) {
         lessonsForModule,
         getLesson: resolveLesson,
         completeLesson,
+        completePlacementTest,
         isLessonCompleted,
         addNote,
         notesForModule,
         quoteForLesson,
         streak: state.streak,
+        showTransliteration: state.showTransliteration,
+        toggleTransliteration,
       }}
     >
       {children}

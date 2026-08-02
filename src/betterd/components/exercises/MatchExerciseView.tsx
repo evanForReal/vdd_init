@@ -14,10 +14,12 @@ function shuffle<T>(arr: T[]): T[] {
 export function MatchExerciseView({
   exercise,
   language,
+  showTransliteration,
   onAnswered,
 }: {
   exercise: MatchExercise;
   language: LanguageCode;
+  showTransliteration: boolean;
   onAnswered: (correct: boolean) => void;
 }) {
   const leftItems = useMemo(
@@ -79,7 +81,9 @@ export function MatchExerciseView({
               disabled={matched.has(item.pairIndex)}
             >
               <TargetText language={language} text={item.text} />
-              {item.transliteration && <span className="match-translit">{item.transliteration}</span>}
+              {showTransliteration && item.transliteration && (
+                <span className="match-translit">{item.transliteration}</span>
+              )}
             </button>
           ))}
         </div>

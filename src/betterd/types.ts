@@ -8,7 +8,7 @@ export interface LanguageMeta {
 }
 
 export type LessonSize = "small" | "medium" | "large"; // ~10 / 20 / 30 min
-export type LessonKind = "core" | "review" | "final";
+export type LessonKind = "core" | "review" | "final" | "placement";
 
 // A vocab/grammar point an exercise drills. Tagged so review lessons and
 // the final test can be assembled mechanically from what was actually
@@ -157,4 +157,5 @@ export interface BetterDState {
   progress: Record<LanguageCode, LanguageProgress>;
   notes: BetterDNote[];
   streak: StreakState;
+  showTransliteration: boolean;
 }

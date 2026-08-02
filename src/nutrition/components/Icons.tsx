@@ -218,3 +218,32 @@ export function CheckIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function CaptionsIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3.5" y="5.5" width="17" height="13" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M7 14.5c-1.4 0-2.2-.9-2.2-2s.8-2 2.2-2c.7 0 1.2.25 1.6.7M13.4 14.5c-1.4 0-2.2-.9-2.2-2s.8-2 2.2-2c.7 0 1.2.25 1.6.7"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function GaugeIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 16a8 8 0 1 1 16 0"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path d="M12 16l4-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="12" cy="16" r="1.3" fill="currentColor" />
+    </svg>
+  );
+}

@@ -3,7 +3,15 @@ import { TargetText } from "./TargetText";
 import { SpeakerIcon } from "../../nutrition/components/Icons";
 import { speak } from "../speech";
 
-export function QuoteCard({ quote, language }: { quote: Quote; language: LanguageCode }) {
+export function QuoteCard({
+  quote,
+  language,
+  showTransliteration,
+}: {
+  quote: Quote;
+  language: LanguageCode;
+  showTransliteration: boolean;
+}) {
   return (
     <div className="quote-card">
       <div className="quote-card-header">
@@ -16,7 +24,9 @@ export function QuoteCard({ quote, language }: { quote: Quote; language: Languag
           <SpeakerIcon />
         </button>
       </div>
-      {quote.transliteration && <div className="quote-translit">{quote.transliteration}</div>}
+      {showTransliteration && quote.transliteration && (
+        <div className="quote-translit">{quote.transliteration}</div>
+      )}
       <div className="quote-english">&ldquo;{quote.english}&rdquo;</div>
       <div className="quote-source">
         {quote.author ? `— ${quote.author}, ` : "— "}

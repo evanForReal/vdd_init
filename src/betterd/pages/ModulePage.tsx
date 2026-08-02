@@ -2,7 +2,7 @@ import { useBetterD } from "../context/BetterDContext";
 import { modulesForLanguage, languageMeta } from "../content";
 import type { LanguageCode, LessonSize } from "../types";
 import { StreakBadge } from "../components/StreakBadge";
-import { LockIcon, CheckIcon, BookIcon } from "../../nutrition/components/Icons";
+import { LockIcon, CheckIcon, BookIcon, GaugeIcon } from "../../nutrition/components/Icons";
 import { ArtworkPanel } from "../../components/ArtworkPanel";
 import { useState } from "react";
 
@@ -14,14 +14,16 @@ export function ModulePage({
   onBack,
   onOpenLesson,
   onOpenNotebook,
+  onTestIn,
 }: {
   language: LanguageCode;
   moduleId: string;
   onBack: () => void;
   onOpenLesson: (lessonId: string) => void;
   onOpenNotebook: () => void;
+  onTestIn: () => void;
 }) {
-  const { lessonsForModule, streak } = useBetterD();
+  const { lessonsForModule, moduleStatus, streak } = useBetterD();
   const module = modulesForLanguage(language).find((m) => m.id === moduleId);
   const meta = languageMeta(language);
   const [artSeed] = useState(() => `betterd-module-${Math.random().toString(36).slice(2)}`);
@@ -37,6 +39,7 @@ export function ModulePage({
   }
 
   const nodes = lessonsForModule(module);
+  const status = moduleStatus(module);
 
   return (
     <div className="page">
@@ -51,9 +54,16 @@ export function ModulePage({
         <StreakBadge streak={streak} />
       </header>
 
-      <button className="text-btn notebook-link-btn" onClick={onOpenNotebook}>
-        <BookIcon /> view notebook
-      </button>
+      <div className="module-action-row">
+        <button className="text-btn notebook-link-btn" onClick={onOpenNotebook}>
+          <BookIcon /> view notebook
+        </button>
+        {status !== "completed" && (
+          <button className="text-btn test-in-btn" onClick={onTestIn}>
+            <GaugeIcon /> test in
+          </button>
+        )}
+      </div>
 
       <div className="lesson-path">
         {nodes.map(({ lesson, status }, i) => (

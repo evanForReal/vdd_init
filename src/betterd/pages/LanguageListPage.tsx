@@ -7,8 +7,10 @@ import { ArtworkPanel } from "../../components/ArtworkPanel";
 
 export function LanguageListPage({
   onSelectLanguage,
+  onTestIn,
 }: {
   onSelectLanguage: (language: LanguageCode) => void;
+  onTestIn: (language: LanguageCode) => void;
 }) {
   const { moduleStatus, streak } = useBetterD();
   const [artSeed] = useState(() => `betterd-home-${Math.random().toString(36).slice(2)}`);
@@ -27,21 +29,28 @@ export function LanguageListPage({
         {LANGUAGES.map((lang) => {
           const modules = modulesForLanguage(lang.code);
           const completedCount = modules.filter((m) => moduleStatus(m) === "completed").length;
+          const allDone = completedCount === modules.filter((m) => !m.placeholder).length;
           return (
-            <button
+            <div
               key={lang.code}
               className="lang-card"
               style={{ "--lang-accent": lang.accent } as React.CSSProperties}
-              onClick={() => onSelectLanguage(lang.code)}
             >
-              <div className="lang-card-main">
-                <div className="lang-card-name">{lang.name}</div>
-                <div className="lang-card-native">{lang.nativeName}</div>
-              </div>
-              <div className="lang-card-progress">
-                {completedCount}/{modules.length} modules
-              </div>
-            </button>
+              <button className="lang-card-main-btn" onClick={() => onSelectLanguage(lang.code)}>
+                <div className="lang-card-main">
+                  <div className="lang-card-name">{lang.name}</div>
+                  <div className="lang-card-native">{lang.nativeName}</div>
+                </div>
+                <div className="lang-card-progress">
+                  {completedCount}/{modules.length} modules
+                </div>
+              </button>
+              {!allDone && (
+                <button className="lang-card-testin" onClick={() => onTestIn(lang.code)}>
+                  test in
+                </button>
+              )}
+            </div>
           );
         })}
       </div>

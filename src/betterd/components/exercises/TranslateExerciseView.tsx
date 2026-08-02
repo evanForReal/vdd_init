@@ -7,10 +7,12 @@ import { CheckFooter } from "./CheckFooter";
 export function TranslateExerciseView({
   exercise,
   language,
+  showTransliteration,
   onAnswered,
 }: {
   exercise: TranslateExercise;
   language: LanguageCode;
+  showTransliteration: boolean;
   onAnswered: (correct: boolean) => void;
 }) {
   const [value, setValue] = useState("");
@@ -33,7 +35,7 @@ export function TranslateExerciseView({
         ) : (
           <TargetText language={language} text={exercise.source} />
         )}
-        {!toTarget && exercise.transliteration && (
+        {!toTarget && showTransliteration && exercise.transliteration && (
           <div className="exercise-translit">{exercise.transliteration}</div>
         )}
       </div>
