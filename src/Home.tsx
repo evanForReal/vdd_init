@@ -5,10 +5,12 @@ export function Home({
   onEnterWorkout,
   onEnterNutrition,
   onEnterTd,
+  onEnterBetterD,
 }: {
   onEnterWorkout: () => void;
   onEnterNutrition: () => void;
   onEnterTd: () => void;
+  onEnterBetterD: () => void;
 }) {
   return (
     <div className="home-shell">
@@ -30,6 +32,9 @@ export function Home({
           <div className="orb-col orb-col-offset">
             <button className="orb orb-td" onClick={onEnterTd}>
               <span className="orb-label">td</span>
+            </button>
+            <button className="orb orb-bd" onClick={onEnterBetterD}>
+              <span className="orb-label">bd</span>
             </button>
           </div>
         </div>

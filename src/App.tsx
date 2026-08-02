@@ -3,8 +3,9 @@ import { Home } from "./Home";
 import { WorkoutApp } from "./WorkoutApp";
 import { NutritionApp } from "./nutrition/NutritionApp";
 import { TdApp } from "./td/TdApp";
+import { BetterDApp } from "./betterd/BetterDApp";
 
-type Mode = "home" | "workout" | "nutrition" | "td";
+type Mode = "home" | "workout" | "nutrition" | "td" | "betterd";
 
 export default function App() {
   const [mode, setMode] = useState<Mode>("home");
@@ -18,11 +19,15 @@ export default function App() {
   if (mode === "td") {
     return <TdApp onBack={() => setMode("home")} />;
   }
+  if (mode === "betterd") {
+    return <BetterDApp onBack={() => setMode("home")} />;
+  }
   return (
     <Home
       onEnterWorkout={() => setMode("workout")}
       onEnterNutrition={() => setMode("nutrition")}
       onEnterTd={() => setMode("td")}
+      onEnterBetterD={() => setMode("betterd")}
     />
   );
 }
