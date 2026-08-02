@@ -508,14 +508,50 @@ button {
   margin-bottom: 4px;
 }
 
-.last-session-value {
-  font-size: 16px;
+.last-session-sets {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.last-session-sets-header {
+  display: grid;
+  grid-template-columns: 20px 1fr 1fr 0.7fr;
+  gap: 10px;
+}
+
+.last-session-sets-header span {
+  color: var(--text-faint);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.last-session-set-row {
+  display: grid;
+  grid-template-columns: 20px 1fr 1fr 0.7fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.last-session-set-row span:not(.last-session-set-num) {
+  text-align: center;
+  font-size: 15px;
   font-weight: 600;
   color: var(--accent-strong);
 }
 
+.last-session-set-num {
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--serif);
+}
+
 .last-session-comment {
-  margin-top: 8px;
+  margin-top: 10px;
   font-size: 13px;
   color: var(--text-dim);
   font-family: var(--serif);

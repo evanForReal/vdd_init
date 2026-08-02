@@ -7,16 +7,6 @@ function emptySet(): SetEntry {
   return { reps: "", weight: "", rir: "", completed: false };
 }
 
-function summarizeLast(sets: SetEntry[]): string {
-  const reps = sets.map((s) => s.reps || "-").join(", ");
-  const weights = Array.from(new Set(sets.map((s) => s.weight || "-")));
-  const weightStr =
-    weights.length === 1
-      ? weights[0]
-      : sets.map((s) => s.weight || "-").join(", ");
-  return `${reps} @ ${weightStr} lb`;
-}
-
 export function ExerciseDetailSheet({
   exercise,
   date,
@@ -101,9 +91,22 @@ export function ExerciseDetailSheet({
 
         {lastLog && (
           <div className="last-session">
-            <div className="last-session-label">last</div>
-            <div className="last-session-value">
-              {summarizeLast(lastLog.sets)}
+            <div className="last-session-label">last session</div>
+            <div className="last-session-sets">
+              <div className="last-session-sets-header">
+                <span></span>
+                <span>reps</span>
+                <span>lb</span>
+                <span>rir</span>
+              </div>
+              {lastLog.sets.map((s, i) => (
+                <div className="last-session-set-row" key={i}>
+                  <span className="last-session-set-num">{i + 1}</span>
+                  <span>{s.reps || "–"}</span>
+                  <span>{s.weight || "–"}</span>
+                  <span>{s.rir || "–"}</span>
+                </div>
+              ))}
             </div>
             {lastLog.comment && (
               <div className="last-session-comment">
