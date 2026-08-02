@@ -16,6 +16,7 @@ const DEFAULT_STATE: BetterDState = {
   },
   notes: [],
   streak: { current: 0, longest: 0, lastPracticeDate: "" },
+  showTransliteration: true,
 };
 
 export function loadBetterDState(): BetterDState {
@@ -39,6 +40,7 @@ export function loadBetterDState(): BetterDState {
         longest: parsed.streak?.longest ?? 0,
         lastPracticeDate: parsed.streak?.lastPracticeDate ?? "",
       },
+      showTransliteration: parsed.showTransliteration ?? true,
     };
   } catch {
     return DEFAULT_STATE;

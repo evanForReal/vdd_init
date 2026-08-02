@@ -59,8 +59,22 @@ export function recognizeSpeech(
   };
   recognition.onerror = () => onError();
   recognition.onend = () => onEnd?.();
-  recognition.start();
-  return () => recognition.stop();
+  try {
+    recognition.start();
+  } catch {
+    // Some browsers throw synchronously (e.g. permission already denied)
+    // instead of firing onerror — treat that the same way so the caller
+    // never gets stuck waiting on a recognizer that never started.
+    onError();
+    return () => {};
+  }
+  return () => {
+    try {
+      recognition.stop();
+    } catch {
+      // already stopped/never started — nothing to do
+    }
+  };
 }
 
 // Latin combining accents (U+0300-U+036F) + Arabic tashkeel diacritics

@@ -27,7 +27,17 @@ export function BetterDApp({ onBack }: { onBack: () => void }) {
         )}
         <main className="app-main">
           {view.kind === "languages" && (
-            <LanguageListPage onSelectLanguage={(language) => setView({ kind: "tree", language })} />
+            <LanguageListPage
+              onSelectLanguage={(language) => setView({ kind: "tree", language })}
+              onTestIn={(language) =>
+                setView({
+                  kind: "lesson",
+                  language,
+                  moduleId: "__all__",
+                  lessonId: `${language}-placement-all`,
+                })
+              }
+            />
           )}
           {view.kind === "tree" && (
             <SkillTreePage
@@ -47,6 +57,14 @@ export function BetterDApp({ onBack }: { onBack: () => void }) {
               onOpenNotebook={() =>
                 setView({ kind: "notebook", language: view.language, moduleId: view.moduleId })
               }
+              onTestIn={() =>
+                setView({
+                  kind: "lesson",
+                  language: view.language,
+                  moduleId: view.moduleId,
+                  lessonId: `${view.moduleId}-placement`,
+                })
+              }
             />
           )}
           {view.kind === "lesson" && (
@@ -54,7 +72,13 @@ export function BetterDApp({ onBack }: { onBack: () => void }) {
               language={view.language}
               moduleId={view.moduleId}
               lessonId={view.lessonId}
-              onExit={() => setView({ kind: "module", language: view.language, moduleId: view.moduleId })}
+              onExit={() =>
+                setView(
+                  view.moduleId === "__all__"
+                    ? { kind: "tree", language: view.language }
+                    : { kind: "module", language: view.language, moduleId: view.moduleId }
+                )
+              }
             />
           )}
           {view.kind === "notebook" && (

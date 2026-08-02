@@ -9,15 +9,18 @@ type Phase = "prompt" | "listening" | "auto-result" | "self-rate-done";
 export function SpeakExerciseView({
   exercise,
   language,
+  showTransliteration,
   onAnswered,
 }: {
   exercise: SpeakExercise;
   language: LanguageCode;
+  showTransliteration: boolean;
   onAnswered: (correct: boolean) => void;
 }) {
   const [phase, setPhase] = useState<Phase>("prompt");
   const [transcript, setTranscript] = useState("");
   const [correct, setCorrect] = useState(false);
+  const [showSelfRate, setShowSelfRate] = useState(false);
   const stopRef = useRef<(() => void) | null>(null);
   const supported = speechRecognitionSupported();
 
@@ -36,12 +39,20 @@ export function SpeakExerciseView({
     );
   }
 
+  function stopListening() {
+    stopRef.current?.();
+    stopRef.current = null;
+    setPhase("prompt");
+  }
+
   return (
     <div className="exercise">
       <p className="exercise-prompt">{exercise.prompt}</p>
       <div className="exercise-source">
         <TargetText language={language} text={exercise.target} className="speak-target" />
-        {exercise.transliteration && <div className="exercise-translit">{exercise.transliteration}</div>}
+        {showTransliteration && exercise.transliteration && (
+          <div className="exercise-translit">{exercise.transliteration}</div>
+        )}
         <div className="exercise-english-hint">{exercise.english}</div>
       </div>
 
@@ -49,37 +60,50 @@ export function SpeakExerciseView({
         <SpeakerIcon /> hear it
       </button>
 
-      {phase === "prompt" && supported && (
-        <button className="primary-btn ex-check-btn" onClick={startRecording}>
-          <MicIcon /> record my attempt
-        </button>
-      )}
-      {phase === "prompt" && !supported && (
+      {phase === "prompt" && (
         <div className="ex-selfrate">
-          <p className="hint">say it out loud, then mark how it went.</p>
-          <div className="ex-selfrate-row">
-            <button
-              className="secondary-btn"
-              onClick={() => {
-                setCorrect(false);
-                setPhase("self-rate-done");
-              }}
-            >
-              needs work
+          {supported && (
+            <button className="primary-btn ex-check-btn" onClick={startRecording}>
+              <MicIcon /> record my attempt
             </button>
-            <button
-              className="primary-btn"
-              onClick={() => {
-                setCorrect(true);
-                setPhase("self-rate-done");
-              }}
-            >
-              nailed it
+          )}
+          {!supported && <p className="hint">say it out loud, then mark how it went.</p>}
+          {supported && !showSelfRate ? (
+            <button className="text-btn" onClick={() => setShowSelfRate(true)}>
+              skip recording — rate myself instead
             </button>
-          </div>
+          ) : (
+            <div className="ex-selfrate-row">
+              <button
+                className="secondary-btn"
+                onClick={() => {
+                  setCorrect(false);
+                  setPhase("self-rate-done");
+                }}
+              >
+                needs work
+              </button>
+              <button
+                className="primary-btn"
+                onClick={() => {
+                  setCorrect(true);
+                  setPhase("self-rate-done");
+                }}
+              >
+                nailed it
+              </button>
+            </div>
+          )}
         </div>
       )}
-      {phase === "listening" && <p className="hint listening-hint">listening…</p>}
+      {phase === "listening" && (
+        <div className="ex-selfrate">
+          <p className="hint listening-hint">listening…</p>
+          <button className="secondary-btn" onClick={stopListening}>
+            stop listening
+          </button>
+        </div>
+      )}
       {phase === "auto-result" && (
         <div className={`ex-feedback ${correct ? "correct" : "incorrect"}`}>
           <div className="ex-feedback-text">

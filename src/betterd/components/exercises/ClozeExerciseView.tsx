@@ -6,10 +6,12 @@ import { CheckFooter } from "./CheckFooter";
 export function ClozeExerciseView({
   exercise,
   language,
+  showTransliteration,
   onAnswered,
 }: {
   exercise: ClozeExercise;
   language: LanguageCode;
+  showTransliteration: boolean;
   onAnswered: (correct: boolean) => void;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
@@ -26,7 +28,9 @@ export function ClozeExerciseView({
           text={`${before}${selected ?? "___"}${after ?? ""}`}
           className="cloze-sentence-text"
         />
-        {exercise.transliteration && <div className="exercise-translit">{exercise.transliteration}</div>}
+        {showTransliteration && exercise.transliteration && (
+          <div className="exercise-translit">{exercise.transliteration}</div>
+        )}
         {exercise.english !== "___" && <div className="exercise-english-hint">{exercise.english}</div>}
       </div>
       <div className="option-list">

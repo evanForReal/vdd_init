@@ -50,6 +50,11 @@ export function ListenExerciseView({
         onCheck={() => setChecked(true)}
         onContinue={() => onAnswered(correct)}
       />
+      {!checked && (
+        <button className="text-btn skip-btn" onClick={() => onAnswered(false)}>
+          skip this one
+        </button>
+      )}
     </div>
   );
 }

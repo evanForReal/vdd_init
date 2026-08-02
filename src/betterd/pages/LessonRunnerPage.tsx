@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useBetterD } from "../context/BetterDContext";
 import type { LanguageCode } from "../types";
+import { modulesForLanguage } from "../content";
 import { ExerciseRenderer } from "../components/exercises/ExerciseRenderer";
-import { NoteFoldout } from "../components/NoteFoldout";
+import { LessonMenu } from "../components/LessonMenu";
 import { QuoteCard } from "../components/QuoteCard";
 import { CheckIcon } from "../../nutrition/components/Icons";
 
@@ -17,12 +18,22 @@ export function LessonRunnerPage({
   lessonId: string;
   onExit: () => void;
 }) {
-  const { getLesson, completeLesson, addNote, quoteForLesson } = useBetterD();
+  const {
+    getLesson,
+    completeLesson,
+    completePlacementTest,
+    addNote,
+    quoteForLesson,
+    showTransliteration,
+    toggleTransliteration,
+  } = useBetterD();
   const lesson = getLesson(lessonId);
+  const isPlacement = lesson?.kind === "placement";
   const [index, setIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [noteBuffer, setNoteBuffer] = useState<string[]>([]);
   const [done, setDone] = useState(false);
+  const [passed, setPassed] = useState(false);
 
   if (!lesson) {
     return (
@@ -44,14 +55,25 @@ export function LessonRunnerPage({
       setIndex((i) => i + 1);
       return;
     }
-    if (noteBuffer.length > 0) {
-      addNote(moduleId, lessonId, language, noteBuffer.join("\n\n"));
+    if (isPlacement) {
+      const targetModuleIds =
+        moduleId === "__all__"
+          ? modulesForLanguage(language)
+              .filter((m) => !m.placeholder)
+              .map((m) => m.id)
+          : [moduleId];
+      const didPass = completePlacementTest(targetModuleIds, language, newCorrectCount, lesson!.exercises.length);
+      setPassed(didPass);
+    } else {
+      if (noteBuffer.length > 0) {
+        addNote(moduleId, lessonId, language, noteBuffer.join("\n\n"));
+      }
+      completeLesson(language, lessonId, newCorrectCount, lesson!.exercises.length);
     }
-    completeLesson(language, lessonId, newCorrectCount, lesson!.exercises.length);
     setDone(true);
   }
 
-  const quote = done ? quoteForLesson(lessonId, language) : undefined;
+  const quote = done && !isPlacement ? quoteForLesson(lessonId, language) : undefined;
 
   return (
     <div className="page lesson-runner">
@@ -63,15 +85,24 @@ export function LessonRunnerPage({
           <div className="lesson-progress-fill" style={{ width: `${progress}%` }} />
         </div>
         {!done && (
-          <NoteFoldout
+          <LessonMenu
             entryCount={noteBuffer.length}
-            onAppend={(text) => setNoteBuffer((b) => [...b, text])}
+            onAppendNote={(text) => setNoteBuffer((b) => [...b, text])}
+            showNotes={!isPlacement}
+            showTransliteration={showTransliteration}
+            onToggleTransliteration={toggleTransliteration}
           />
         )}
       </div>
 
       {!done && exercise && (
-        <ExerciseRenderer key={exercise.id} exercise={exercise} language={language} onAnswered={handleAnswered} />
+        <ExerciseRenderer
+          key={exercise.id}
+          exercise={exercise}
+          language={language}
+          showTransliteration={showTransliteration}
+          onAnswered={handleAnswered}
+        />
       )}
 
       {done && (
@@ -80,7 +111,14 @@ export function LessonRunnerPage({
             <CheckIcon className="lesson-score-icon" />
             {correctCount}/{lesson.exercises.length} correct
           </div>
-          {quote && <QuoteCard quote={quote} language={language} />}
+          {isPlacement && (
+            <div className={`placement-result ${passed ? "pass" : "fail"}`}>
+              {passed
+                ? "you know this — marked complete!"
+                : "not quite there yet — keep learning the normal way."}
+            </div>
+          )}
+          {quote && <QuoteCard quote={quote} language={language} showTransliteration={showTransliteration} />}
           <button className="primary-btn" onClick={onExit}>
             done
           </button>
