@@ -34,7 +34,7 @@ export function Home({
               <span className="orb-label">td</span>
             </button>
             <button className="orb orb-bd" onClick={onEnterBetterD}>
-              <span className="orb-label">bd</span>
+              <span className="orb-label">d</span>
             </button>
           </div>
         </div>

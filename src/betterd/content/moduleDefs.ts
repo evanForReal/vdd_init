@@ -6,31 +6,27 @@ import type { LanguageCode, Module } from "../types";
 const TOPICS: Array<{ title: string; description: string }> = [
   {
     title: "foundations: everyday life",
-    description:
-      "greetings, self-introductions, family, daily routines, food, and the basics that carry every conversation after this one.",
+    description: "greetings, self-introductions, family, daily routines, food, basics",
   },
   {
     title: "hobbies & self-expression",
-    description:
-      "vocabulary and conversation for hobbies, interests, and talking about what lights you up.",
+    description: "hobbies, interests, self-expression, what lights you up",
   },
   {
     title: "traveling & getting around",
-    description:
-      "getting around a new city or country — directions, transport, lodging, and everyday logistics.",
+    description: "directions, transport, lodging, everyday logistics",
   },
   {
     title: "relationships & social dynamics",
-    description: "the language of relationships — family, friendship, conflict, and connection.",
+    description: "family, friendship, conflict, connection",
   },
   {
     title: "science, nature & ideas",
-    description: "structured thinking — the scientific method, nature, and the vocabulary of ideas.",
+    description: "scientific method, nature, vocabulary of ideas",
   },
   {
     title: "business & professional fluency",
-    description:
-      "the vocabulary and register of business and professional life — meetings, negotiation, and formal correspondence.",
+    description: "meetings, negotiation, formal correspondence, professional register",
   },
 ];
 

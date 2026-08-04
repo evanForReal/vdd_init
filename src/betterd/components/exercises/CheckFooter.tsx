@@ -5,6 +5,7 @@ export function CheckFooter({
   canCheck,
   onCheck,
   onContinue,
+  onVeto,
   checkLabel = "check",
 }: {
   checked: boolean;
@@ -13,6 +14,7 @@ export function CheckFooter({
   canCheck: boolean;
   onCheck: () => void;
   onContinue: () => void;
+  onVeto?: () => void;
   checkLabel?: string;
 }) {
   if (!checked) {
@@ -24,12 +26,19 @@ export function CheckFooter({
   }
   return (
     <div className={`ex-feedback ${correct ? "correct" : "incorrect"}`}>
-      <div className="ex-feedback-text">
-        {correct ? "correct!" : correctAnswerLabel ? `correct answer: ${correctAnswerLabel}` : "not quite"}
+      <div className="ex-feedback-row">
+        <div className="ex-feedback-text">
+          {correct ? "correct!" : correctAnswerLabel ? `correct answer: ${correctAnswerLabel}` : "not quite"}
+        </div>
+        <button className="primary-btn ex-continue-btn" onClick={onContinue}>
+          continue
+        </button>
       </div>
-      <button className="primary-btn ex-continue-btn" onClick={onContinue}>
-        continue
-      </button>
+      {!correct && onVeto && (
+        <button className="text-btn veto-btn" onClick={onVeto}>
+          no, i was right
+        </button>
+      )}
     </div>
   );
 }

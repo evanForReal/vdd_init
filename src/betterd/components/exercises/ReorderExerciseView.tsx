@@ -26,8 +26,9 @@ export function ReorderExerciseView({
   );
   const [placed, setPlaced] = useState<typeof bank>([]);
   const [checked, setChecked] = useState(false);
+  const [vetoed, setVetoed] = useState(false);
   const remaining = bank.filter((b) => !placed.some((p) => p.key === b.key));
-  const correct = placed.map((p) => p.word).join(" ") === exercise.words.join(" ");
+  const correct = vetoed || placed.map((p) => p.word).join(" ") === exercise.words.join(" ");
 
   return (
     <div className="exercise">
@@ -65,6 +66,7 @@ export function ReorderExerciseView({
         canCheck={placed.length === bank.length}
         onCheck={() => setChecked(true)}
         onContinue={() => onAnswered(correct)}
+        onVeto={() => setVetoed(true)}
       />
     </div>
   );

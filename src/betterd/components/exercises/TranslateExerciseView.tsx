@@ -36,7 +36,10 @@ export function TranslateExerciseView({
           <TargetText language={language} text={exercise.source} />
         )}
         {!toTarget && showTransliteration && exercise.transliteration && (
-          <div className="exercise-translit">{exercise.transliteration}</div>
+          <div className="exercise-translit">
+            {exercise.transliteration}
+            {exercise.simplified && ` (简: ${exercise.simplified})`}
+          </div>
         )}
       </div>
       <input
@@ -54,6 +57,7 @@ export function TranslateExerciseView({
         canCheck={value.trim().length > 0}
         onCheck={check}
         onContinue={() => onAnswered(correct)}
+        onVeto={() => setCorrect(true)}
       />
     </div>
   );

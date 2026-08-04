@@ -15,7 +15,8 @@ export function ListenExerciseView({
 }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
-  const correct = selected === exercise.correctIndex;
+  const [vetoed, setVetoed] = useState(false);
+  const correct = vetoed || selected === exercise.correctIndex;
 
   return (
     <div className="exercise">
@@ -49,6 +50,7 @@ export function ListenExerciseView({
         canCheck={selected !== null}
         onCheck={() => setChecked(true)}
         onContinue={() => onAnswered(correct)}
+        onVeto={() => setVetoed(true)}
       />
       {!checked && (
         <button className="text-btn skip-btn" onClick={() => onAnswered(false)}>

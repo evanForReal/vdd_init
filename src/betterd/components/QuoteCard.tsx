@@ -25,7 +25,10 @@ export function QuoteCard({
         </button>
       </div>
       {showTransliteration && quote.transliteration && (
-        <div className="quote-translit">{quote.transliteration}</div>
+        <div className="quote-translit">
+          {quote.transliteration}
+          {quote.simplified && ` (简: ${quote.simplified})`}
+        </div>
       )}
       <div className="quote-english">&ldquo;{quote.english}&rdquo;</div>
       <div className="quote-source">

@@ -71,6 +71,7 @@ function buildDrillExercises(terms: VocabTerm[], count: number, seed: string): E
         source: term.target,
         answer: term.english,
         transliteration: term.transliteration,
+        simplified: term.simplified,
         term,
       });
     } else if (kind === 1) {
@@ -90,6 +91,7 @@ function buildDrillExercises(terms: VocabTerm[], count: number, seed: string): E
         prompt: "what does this mean?",
         sentence: term.target,
         transliteration: term.transliteration,
+        simplified: term.simplified,
         english: "___",
         answer: term.english,
         options,
@@ -102,6 +104,7 @@ function buildDrillExercises(terms: VocabTerm[], count: number, seed: string): E
         prompt: "say this aloud",
         target: term.target,
         transliteration: term.transliteration,
+        simplified: term.simplified,
         english: term.english,
         term,
       });

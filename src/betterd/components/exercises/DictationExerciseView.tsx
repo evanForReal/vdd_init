@@ -47,6 +47,7 @@ export function DictationExerciseView({
         canCheck={value.trim().length > 0}
         onCheck={check}
         onContinue={() => onAnswered(correct)}
+        onVeto={() => setCorrect(true)}
       />
     </div>
   );

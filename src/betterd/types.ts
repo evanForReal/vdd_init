@@ -17,6 +17,7 @@ export interface VocabTerm {
   target: string;
   transliteration?: string; // pinyin / romanization — used for zh, ar
   english: string;
+  simplified?: string; // simplified-Chinese form of `target`, when `target` is traditional
 }
 
 interface ExerciseBase {
@@ -31,6 +32,7 @@ export interface TranslateExercise extends ExerciseBase {
   answer: string;
   altAnswers?: string[];
   transliteration?: string;
+  simplified?: string; // simplified-Chinese form of `source` when it holds target-language text
   term?: VocabTerm;
 }
 
@@ -38,13 +40,14 @@ export interface SpeakExercise extends ExerciseBase {
   type: "speak";
   target: string;
   transliteration?: string;
+  simplified?: string;
   english: string;
   term?: VocabTerm;
 }
 
 export interface MatchExercise extends ExerciseBase {
   type: "match";
-  pairs: { target: string; transliteration?: string; english: string }[];
+  pairs: { target: string; transliteration?: string; simplified?: string; english: string }[];
 }
 
 export interface ExplainExercise extends ExerciseBase {
@@ -67,6 +70,7 @@ export interface ClozeExercise extends ExerciseBase {
   type: "cloze";
   sentence: string; // contains a single "___"
   transliteration?: string;
+  simplified?: string; // simplified-Chinese form of `sentence`
   english: string;
   answer: string;
   options: string[];
@@ -110,6 +114,7 @@ export interface Quote {
   language: LanguageCode;
   native: string;
   transliteration?: string;
+  simplified?: string; // simplified-Chinese form of `native`
   english: string;
   source: string;
   author?: string;
