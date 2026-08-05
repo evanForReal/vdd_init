@@ -15,6 +15,7 @@ import type {
 import { loadBetterDState, saveBetterDState } from "../storage";
 import { MODULES, LESSONS, QUOTES } from "../content";
 import {
+  effectiveStreak,
   generateFinalTest,
   generateLanguagePlacementTest,
   generateModulePlacementTest,
@@ -269,7 +270,7 @@ export function BetterDProvider({ children }: { children: ReactNode }) {
         addNote,
         notesForModule,
         quoteForLesson,
-        streak: state.streak,
+        streak: effectiveStreak(state.streak),
         showTransliteration: state.showTransliteration,
         toggleTransliteration,
       }}
