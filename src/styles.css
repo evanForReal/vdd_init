@@ -2584,10 +2584,16 @@ button {
   border-radius: 14px;
   padding: 14px 16px;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.ex-feedback-row {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 6px;
 }
 
 .ex-feedback.correct {
@@ -2604,6 +2610,12 @@ button {
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
+}
+
+.veto-btn {
+  align-self: flex-start;
+  padding: 0;
+  font-size: 12px;
 }
 
 .ex-continue-btn {
@@ -2653,6 +2665,40 @@ button {
 
 .cloze-sentence-text {
   font-size: 18px;
+}
+
+.cloze-recall-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cloze-recall-row .cloze-sentence-text {
+  font-size: 19px;
+}
+
+.cloze-arrow {
+  color: var(--text-faint);
+  font-size: 16px;
+}
+
+.cloze-blank {
+  font-family: var(--sans);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-faint);
+  border-bottom: 2px dashed var(--border);
+  padding: 0 2px 2px;
+  min-width: 28px;
+  display: inline-block;
+  text-align: center;
+}
+
+.cloze-blank.filled {
+  color: var(--accent-strong);
+  border-bottom-style: solid;
+  border-color: var(--accent);
 }
 
 .match-grid {

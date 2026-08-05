@@ -29,6 +29,7 @@ export function MatchExerciseView({
           key: `t${i}`,
           text: p.target,
           transliteration: p.transliteration,
+          simplified: p.simplified,
           pairIndex: i,
         }))
       ),
@@ -82,7 +83,10 @@ export function MatchExerciseView({
             >
               <TargetText language={language} text={item.text} />
               {showTransliteration && item.transliteration && (
-                <span className="match-translit">{item.transliteration}</span>
+                <span className="match-translit">
+                  {item.transliteration}
+                  {item.simplified && ` (简: ${item.simplified})`}
+                </span>
               )}
             </button>
           ))}

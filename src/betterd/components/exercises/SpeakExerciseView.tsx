@@ -51,7 +51,10 @@ export function SpeakExerciseView({
       <div className="exercise-source">
         <TargetText language={language} text={exercise.target} className="speak-target" />
         {showTransliteration && exercise.transliteration && (
-          <div className="exercise-translit">{exercise.transliteration}</div>
+          <div className="exercise-translit">
+            {exercise.transliteration}
+            {exercise.simplified && ` (简: ${exercise.simplified})`}
+          </div>
         )}
         <div className="exercise-english-hint">{exercise.english}</div>
       </div>
