@@ -1,4 +1,20 @@
-import type { Exercise, Lesson, LanguageCode, Module, Quote, VocabTerm } from "./types";
+import type { Exercise, Lesson, LanguageCode, Module, Quote, StreakState, VocabTerm } from "./types";
+import { addDays, todayISO } from "../utils/date";
+
+// The stored streak only ever gets *updated* when a lesson is completed, so
+// a missed day wouldn't otherwise show up until the next completion. This
+// derives what the streak should read *right now*: still alive if the last
+// practice was today or yesterday (today isn't over yet), reset to 0 the
+// moment a full day has gone by with nothing logged. `longest` is a
+// historical record and is left untouched either way.
+export function effectiveStreak(streak: StreakState): StreakState {
+  if (!streak.lastPracticeDate) return streak;
+  const today = todayISO();
+  if (streak.lastPracticeDate === today || streak.lastPracticeDate === addDays(today, -1)) {
+    return streak;
+  }
+  return { ...streak, current: 0 };
+}
 
 export function hashString(input: string): number {
   let hash = 0;

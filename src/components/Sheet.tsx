@@ -13,6 +13,15 @@ const SPRING = { type: "spring", stiffness: 380, damping: 34 } as const;
 // per-snap height/overflow juggling is needed. `y` is read directly for
 // both live dragging and programmatic snapping so the two can never drift
 // out of sync with each other.
+let openSheetCount = 0;
+
+// Interactive controls (the title-rename input, the close button, etc.) need
+// their own taps/clicks to keep working, so a pointerdown that lands on one
+// of those should never be hijacked into a drag.
+function isInteractiveTarget(target: EventTarget | null): boolean {
+  return target instanceof Element && !!target.closest("button, input, textarea, select, a[href]");
+}
+
 export function Sheet({ onClose, children }: { onClose: () => void; children: ReactNode }) {
   const dragControls = useDragControls();
   const [viewportH, setViewportH] = useState(() => window.innerHeight);
@@ -22,6 +31,32 @@ export function Sheet({ onClose, children }: { onClose: () => void; children: Re
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  // Lock the page scrolling behind the sheet for as long as any sheet is
+  // open — otherwise a drag/scroll gesture over the sheet can also be read
+  // by the page underneath, so the list behind it visibly scrolls too.
+  useEffect(() => {
+    openSheetCount += 1;
+    document.body.classList.add("sheet-open");
+    return () => {
+      openSheetCount = Math.max(0, openSheetCount - 1);
+      if (openSheetCount === 0) document.body.classList.remove("sheet-open");
+    };
+  }, []);
+
+  function startDragUnlessInteractive(e: React.PointerEvent) {
+    if (isInteractiveTarget(e.target)) return;
+    dragControls.start(e);
+  }
+
+  // The handle bar is a natural grab point, but it's a thin sliver — the
+  // header row above the body content (title + close button, in every
+  // sheet) is a much bigger, easier target for a swipe, so it's wired to
+  // start the same drag rather than only reacting to taps/scroll.
+  function handleBodyPointerDown(e: React.PointerEvent) {
+    if (!(e.target instanceof Element) || !e.target.closest(".sheet-header")) return;
+    startDragUnlessInteractive(e);
+  }
 
   const panelHeight = viewportH * EXPANDED_FRACTION;
   const halfY = panelHeight - viewportH * HALF_FRACTION;
@@ -67,11 +102,13 @@ export function Sheet({ onClose, children }: { onClose: () => void; children: Re
       >
         <div
           className="sheet-handle-area"
-          onPointerDown={(e) => dragControls.start(e)}
+          onPointerDown={startDragUnlessInteractive}
         >
           <div className="sheet-handle" />
         </div>
-        <div className="sheet-body">{children}</div>
+        <div className="sheet-body" onPointerDownCapture={handleBodyPointerDown}>
+          {children}
+        </div>
       </motion.div>
     </div>
   );

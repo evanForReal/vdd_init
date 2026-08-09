@@ -81,6 +81,14 @@ button {
   flex-direction: column;
 }
 
+/* While a bottom sheet is open, the page behind it must not also scroll —
+   otherwise a drag/scroll gesture over the sheet visibly moves the list
+   underneath it too. */
+body.sheet-open .app-main {
+  overflow: hidden;
+  touch-action: none;
+}
+
 .page {
   padding: 20px 18px 28px;
   padding-top: max(20px, env(safe-area-inset-top));
@@ -428,7 +436,7 @@ button {
 
 .sheet-handle-area {
   flex-shrink: 0;
-  padding: 10px 0 12px;
+  padding: 16px 0 18px;
   touch-action: none;
   cursor: grab;
 }
@@ -454,6 +462,9 @@ button {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 14px;
+  padding: 6px 0;
+  touch-action: none;
+  cursor: grab;
 }
 
 .sheet-title {
@@ -492,70 +503,56 @@ button {
   color: var(--text-faint);
 }
 
-.last-session {
+.last-session-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.last-session-comment-top {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-family: var(--serif);
+  font-style: italic;
+  padding-top: 6px;
+}
+
+.last-session-compact {
+  flex: 0 0 auto;
+  width: 25%;
+  min-width: 68px;
   background: linear-gradient(155deg, var(--surface-2), var(--surface));
   border: 1px solid var(--border);
-  border-radius: 15px;
-  padding: 15px;
-  margin-bottom: 18px;
+  border-radius: 12px;
+  padding: 8px 10px;
   box-shadow: var(--shadow-lift);
+  text-align: right;
 }
 
 .last-session-label {
-  font-size: 10.5px;
+  font-size: 9.5px;
   color: var(--text-faint);
   letter-spacing: 0.1em;
   margin-bottom: 4px;
 }
 
-.last-session-sets {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.last-session-sets-header {
-  display: grid;
-  grid-template-columns: 20px 1fr 1fr 0.7fr;
-  gap: 10px;
-}
-
-.last-session-sets-header span {
-  color: var(--text-faint);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-align: center;
-}
-
-.last-session-set-row {
-  display: grid;
-  grid-template-columns: 20px 1fr 1fr 0.7fr;
-  align-items: center;
-  gap: 10px;
-}
-
-.last-session-set-row span:not(.last-session-set-num) {
-  text-align: center;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--accent-strong);
-}
-
-.last-session-set-num {
-  text-align: center;
-  color: var(--text-faint);
+.last-session-compact-row {
   font-size: 12px;
   font-weight: 600;
-  font-family: var(--serif);
+  color: var(--accent-strong);
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
-.last-session-comment {
-  margin-top: 10px;
-  font-size: 13px;
-  color: var(--text-dim);
-  font-family: var(--serif);
-  font-style: italic;
+.last-session-compact-row .rir {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-faint);
+  margin-left: 2px;
 }
 
 .sets-grid {
