@@ -7,9 +7,12 @@ export function getCycleDay(
   date: string
 ): (typeof CYCLE_PATTERN)[number] {
   if (mesocycle.insertedRestDates.includes(date)) return "rest";
+  // Every inserted rest day before this date pushes everything after it one
+  // day later — so this date now shows what the pattern would have shown
+  // `shiftCount` days *earlier*, not later.
   const shiftCount = mesocycle.insertedRestDates.filter((d) => d < date).length;
   const base = daysBetween(mesocycle.startDate, date);
-  const idx = (((base + shiftCount) % 6) + 6) % 6;
+  const idx = (((base - shiftCount) % 6) + 6) % 6;
   return CYCLE_PATTERN[idx];
 }
 

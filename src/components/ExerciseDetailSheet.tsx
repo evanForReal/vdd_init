@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CycleDay, ExerciseTemplate, SetEntry } from "../types";
 import { useApp } from "../context/AppContext";
 import { Sheet } from "./Sheet";
@@ -33,6 +33,11 @@ export function ExerciseDetailSheet({
   const [nameDraft, setNameDraft] = useState(exercise.name);
   const [editingName, setEditingName] = useState(false);
   const [dirty, setDirty] = useState(false);
+  // The title sits inside the sheet's draggable header, so a swipe that
+  // starts or ends on the text would otherwise also fire its click and pop
+  // open the rename input. Only treat it as a tap — not a drag passing
+  // through — when the pointer barely moved between down and up.
+  const titlePointerStart = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (!dirty) return;
@@ -80,7 +85,19 @@ export function ExerciseDetailSheet({
             onKeyDown={(e) => e.key === "Enter" && commitName()}
           />
         ) : (
-          <h2 className="sheet-title" onClick={() => setEditingName(true)}>
+          <h2
+            className="sheet-title"
+            onPointerDown={(e) => {
+              titlePointerStart.current = { x: e.clientX, y: e.clientY };
+            }}
+            onPointerUp={(e) => {
+              const start = titlePointerStart.current;
+              titlePointerStart.current = null;
+              if (!start) return;
+              const moved = Math.hypot(e.clientX - start.x, e.clientY - start.y);
+              if (moved < 6) setEditingName(true);
+            }}
+          >
             {exercise.name}
           </h2>
         )}
@@ -90,29 +107,21 @@ export function ExerciseDetailSheet({
       </div>
 
         {lastLog && (
-          <div className="last-session">
-            <div className="last-session-label">last session</div>
-            <div className="last-session-sets">
-              <div className="last-session-sets-header">
-                <span></span>
-                <span>reps</span>
-                <span>lb</span>
-                <span>rir</span>
-              </div>
-              {lastLog.sets.map((s, i) => (
-                <div className="last-session-set-row" key={i}>
-                  <span className="last-session-set-num">{i + 1}</span>
-                  <span>{s.reps || "–"}</span>
-                  <span>{s.weight || "–"}</span>
-                  <span>{s.rir || "–"}</span>
-                </div>
-              ))}
-            </div>
+          <div className="last-session-row">
             {lastLog.comment && (
-              <div className="last-session-comment">
+              <div className="last-session-comment-top">
                 &ldquo;{lastLog.comment}&rdquo;
               </div>
             )}
+            <div className="last-session-compact">
+              <div className="last-session-label">last</div>
+              {lastLog.sets.map((s, i) => (
+                <div className="last-session-compact-row" key={i}>
+                  {s.reps || "–"}×{s.weight || "–"}
+                  {s.rir && <span className="rir">·{s.rir}</span>}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
