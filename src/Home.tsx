@@ -6,11 +6,13 @@ export function Home({
   onEnterNutrition,
   onEnterTd,
   onEnterBetterD,
+  onEnterBlog,
 }: {
   onEnterWorkout: () => void;
   onEnterNutrition: () => void;
   onEnterTd: () => void;
   onEnterBetterD: () => void;
+  onEnterBlog: () => void;
 }) {
   return (
     <div className="home-shell">
@@ -35,6 +37,9 @@ export function Home({
             </button>
             <button className="orb orb-bd" onClick={onEnterBetterD}>
               <span className="orb-label">d</span>
+            </button>
+            <button className="orb orb-blog" onClick={onEnterBlog}>
+              <span className="orb-label">w</span>
             </button>
           </div>
         </div>

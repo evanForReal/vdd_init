@@ -939,6 +939,18 @@ body.sheet-open .app-main {
   );
 }
 
+.orb-blog,
+.orb-blog:hover,
+.orb-blog:active,
+.orb-blog:focus,
+.orb-blog:focus-visible {
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(138, 168, 196, 0.4),
+    rgba(138, 168, 196, 0.1) 70%
+  );
+}
+
 .orb-label {
   font-family: var(--serif);
   font-size: 22px;
@@ -2962,4 +2974,378 @@ body.sheet-open .app-main {
   line-height: 1.5;
   white-space: pre-wrap;
   margin: 0;
+}
+
+/* ---------- blog ---------- */
+
+/* Scoped palette override: everything inside .blog-shell repaints via the
+   cascading custom properties, without touching :root or any other
+   module. A distinct paper/stonewash identity, not a reskin. */
+.blog-shell {
+  --bg: #e4ddce;
+  --bg-soft: #ddd4c0;
+  --surface: #ede6d6;
+  --surface-2: #f2ecdd;
+  --border: #b9ac91;
+  --border-soft: rgba(40, 34, 26, 0.12);
+  --text: #241f1a;
+  --text-dim: #5c5346;
+  --text-faint: #8a8070;
+  --accent: #4a6b8a;
+  --accent-strong: #34506b;
+  --accent-soft: rgba(74, 107, 138, 0.14);
+  --green: #6f8f6a;
+  --red: #a14a3a;
+  --hand: "Caveat", var(--serif);
+  --redact-fresh: rgba(138, 168, 196, 0.55);
+  --redact-aged: rgba(10, 10, 12, 0.97);
+  background: var(--bg);
+  color: var(--text);
+  position: relative;
+}
+
+/* Restrained background parallax: a fixed, low-opacity paper-fiber texture
+   that content scrolls "over" (background-attachment: fixed) — the same
+   fractal-noise technique as the global film-grain layer, coarser and
+   tinted for paper rather than digital grain. */
+.blog-shell::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.09;
+  mix-blend-mode: multiply;
+  background-attachment: fixed;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.06' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+
+.blog-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.blog-hand-title {
+  font-family: var(--hand);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 4px;
+  letter-spacing: 0.01em;
+}
+
+.blog-page-title {
+  font-family: var(--hand);
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.blog-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 2px 20px;
+}
+
+.blog-article-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.blog-article-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  background: linear-gradient(155deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 15px 17px;
+  text-align: left;
+  box-shadow: var(--shadow-lift);
+}
+
+.blog-article-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.blog-article-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-faint);
+  letter-spacing: 0.03em;
+}
+
+.blog-due-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+}
+
+.blog-editor-title,
+.blog-editor-page h1 {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+
+.blog-editor-textarea {
+  flex: 1;
+  min-height: 50vh;
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.blog-editor-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.blog-session-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.blog-session-week {
+  font-family: var(--hand);
+  font-size: 17px;
+  color: var(--accent-strong);
+  white-space: nowrap;
+}
+
+.blog-session-hint {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin: 0 0 16px;
+}
+
+.article-body-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 18px;
+  box-shadow: var(--shadow-lift);
+  margin-bottom: 16px;
+}
+
+.article-body {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text);
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.article-text-segment.selectable {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.redacted-bar {
+  user-select: none;
+  -webkit-user-select: none;
+  color: transparent;
+  border-radius: 2px;
+  padding: 0.05em 0.15em;
+  margin: 0 -0.15em;
+  /* Without this, a background on an inline element that wraps across
+     multiple lines is treated as one continuous shape clipped to the
+     overall bounding box (odd notches at the wrap points). box-decoration-
+     break: clone gives each wrapped line its own independent rounded
+     background box instead — a clean solid bar per line, like a real
+     highlighter mark, with no seams. */
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.blog-select-bar {
+  position: sticky;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: var(--shadow-lift);
+  margin-bottom: 16px;
+}
+
+.blog-pending-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.blog-pending-item {
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.blog-session-actions {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.blog-reader-meta {
+  font-size: 12px;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  margin-bottom: 14px;
+}
+
+.blog-reader-note {
+  color: var(--text-dim);
+  font-size: 13px;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.blog-redact-cta {
+  margin-top: 6px;
+}
+
+/* ---------- blog menu ---------- */
+
+.blog-menu {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top));
+  right: 14px;
+  z-index: 10;
+}
+
+.blog-menu-btn {
+  position: relative;
+}
+
+.blog-menu-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--accent-strong);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blog-menu-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+}
+
+.blog-menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lift);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 10;
+}
+
+.blog-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.blog-menu-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--accent-strong);
+}
+
+.blog-menu-empty {
+  padding: 12px 10px;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* ---------- artwork panel: raw variant ---------- */
+
+.artwork-panel--raw {
+  width: 62%;
+  max-width: 260px;
+  min-height: 140px;
+  margin: 4px auto 22px;
+  transform: rotate(-2.4deg);
+  border-radius: 2px;
+  border: none;
+  box-shadow: 0 8px 22px -10px rgba(0, 0, 0, 0.5);
+  clip-path: polygon(
+    1% 3%,
+    12% 0%,
+    34% 1.5%,
+    58% 0%,
+    79% 2%,
+    97% 0%,
+    100% 18%,
+    98% 41%,
+    100% 63%,
+    97% 82%,
+    100% 97%,
+    82% 100%,
+    61% 98%,
+    38% 100%,
+    15% 99%,
+    0% 100%,
+    2% 76%,
+    0% 52%,
+    2% 27%
+  );
+}
+
+.artwork-panel--raw .artwork-panel-img {
+  filter: grayscale(0.85) sepia(0.15) saturate(1.4) hue-rotate(175deg) contrast(1.05);
+}
+
+.artwork-panel--raw .artwork-panel-credit,
+.artwork-panel--raw .artwork-panel-scrim {
+  display: none;
 }

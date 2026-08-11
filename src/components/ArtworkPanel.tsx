@@ -21,7 +21,7 @@ export function ArtworkPanel({
 }: {
   seed: string;
   categories?: ArtCategory[];
-  variant?: "hero" | "panel";
+  variant?: "hero" | "panel" | "raw";
   minHeight?: string;
 }) {
   const artwork = useMemo(() => pickArtwork(seed, categories), [seed, categories]);
