@@ -3,16 +3,30 @@ import { FRESH_REDACTION_COLOR, redactionBarColor } from "../utils";
 
 type RedactedSegment = Extract<ArticleSegment, { type: "redacted" }>;
 
-// Rendered as a run of solid block glyphs (not a CSS-width box) so it
-// participates in normal inline text flow and wraps like real prose would
-// — a long redacted passage breaks across lines instead of overflowing the
-// viewport as one giant fixed-width bar.
+const NBSP = "\u00A0";
+
+// A run of nothing but plain spaces only offers the browser a wrap point at
+// its very end, not throughout — so a long one just overflows instead of
+// wrapping. Non-breaking-space "words" separated by ordinary breakable
+// spaces give real wrap points every few characters, the way real prose
+// has one at every word boundary — while the span's background still
+// paints continuously underneath all of it (nbsp or not), so it still
+// reads as one smooth mark, not separate word-chunks.
+function fillerContent(approxLength: number): string {
+  const total = Math.max(3, Math.min(300, approxLength));
+  const chunkSize = 5;
+  const chunks: string[] = [];
+  for (let i = 0; i < total; i += chunkSize) {
+    chunks.push(NBSP.repeat(Math.min(chunkSize, total - i)));
+  }
+  return chunks.join(" ");
+}
+
 export function RedactedBar({ segment }: { segment: RedactedSegment }) {
   const color = segment.redactedAt ? redactionBarColor(segment.redactedAt) : FRESH_REDACTION_COLOR;
-  const glyphCount = Math.max(3, Math.min(220, segment.approxLength));
   return (
-    <span className="redacted-bar" style={{ color }} aria-label="redacted passage">
-      {"█".repeat(glyphCount)}
+    <span className="redacted-bar" style={{ background: color }} aria-label="redacted passage">
+      {fillerContent(segment.approxLength)}
     </span>
   );
 }

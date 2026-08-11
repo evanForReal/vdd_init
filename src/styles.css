@@ -3161,12 +3161,18 @@ body.sheet-open .app-main {
 .redacted-bar {
   user-select: none;
   -webkit-user-select: none;
-  letter-spacing: -1px;
-  border-radius: 1px;
-  /* the glyph run has no spaces to break on — without this a long redacted
-     passage overflows its container as one unbroken line instead of
-     wrapping like real prose would */
-  overflow-wrap: anywhere;
+  color: transparent;
+  border-radius: 2px;
+  padding: 0.05em 0.15em;
+  margin: 0 -0.15em;
+  /* Without this, a background on an inline element that wraps across
+     multiple lines is treated as one continuous shape clipped to the
+     overall bounding box (odd notches at the wrap points). box-decoration-
+     break: clone gives each wrapped line its own independent rounded
+     background box instead — a clean solid bar per line, like a real
+     highlighter mark, with no seams. */
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .blog-select-bar {
