@@ -29,6 +29,7 @@ interface AppContextValue {
   removeExercise: (cycleDay: CycleDay, exerciseId: string) => void;
   renameExercise: (cycleDay: CycleDay, exerciseId: string, name: string) => void;
   insertRestDay: (date: string) => void;
+  removeRestDay: (date: string) => void;
   startMesocycleToday: () => void;
   getLogFor: (date: string, exerciseId: string) => SessionLog | undefined;
   getLastLogBefore: (
@@ -130,6 +131,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }
 
+  // The exact inverse of insertRestDay: dropping this date out of
+  // insertedRestDates both un-rests it and — since getCycleDay's shiftCount
+  // is just a count of insertedRestDates before a given date — slides every
+  // later date's cycle day back by one, undoing the forward push the
+  // insertion caused.
+  function removeRestDay(date: string) {
+    setState((s) => ({
+      ...s,
+      mesocycles: s.mesocycles.map((m) =>
+        m.id === s.activeMesocycleId
+          ? { ...m, insertedRestDates: m.insertedRestDates.filter((d) => d !== date) }
+          : m
+      ),
+    }));
+  }
+
   function startMesocycleToday() {
     const today = todayISO();
     setState((s) => ({
@@ -193,6 +210,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     removeExercise,
     renameExercise,
     insertRestDay,
+    removeRestDay,
     startMesocycleToday,
     getLogFor,
     getLastLogBefore,
