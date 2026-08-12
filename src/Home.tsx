@@ -30,6 +30,9 @@ export function Home({
             <button className="orb orb-n" onClick={onEnterNutrition}>
               <span className="orb-label">n</span>
             </button>
+            <button className="orb orb-blog" onClick={onEnterBlog}>
+              <span className="orb-label">f</span>
+            </button>
           </div>
           <div className="orb-col orb-col-offset">
             <button className="orb orb-td" onClick={onEnterTd}>
@@ -37,9 +40,6 @@ export function Home({
             </button>
             <button className="orb orb-bd" onClick={onEnterBetterD}>
               <span className="orb-label">d</span>
-            </button>
-            <button className="orb orb-blog" onClick={onEnterBlog}>
-              <span className="orb-label">w</span>
             </button>
           </div>
         </div>

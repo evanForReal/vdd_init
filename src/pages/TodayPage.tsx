@@ -7,7 +7,7 @@ import { addDays, daysBetween, formatDateLong, todayISO } from "../utils/date";
 import { CYCLE_DAY_LABELS, getCycleDay } from "../utils/cycle";
 
 export function TodayPage() {
-  const { activeMesocycle, getLogFor, insertRestDay } = useApp();
+  const { activeMesocycle, getLogFor, insertRestDay, removeRestDay } = useApp();
   const [openExercise, setOpenExercise] = useState<ExerciseTemplate | null>(
     null
   );
@@ -28,6 +28,7 @@ export function TodayPage() {
 
   const cycleDay = getCycleDay(activeMesocycle, date);
   const isRest = cycleDay === "rest";
+  const isInsertedRest = activeMesocycle.insertedRestDates.includes(date);
   const exercises = isRest ? [] : activeMesocycle.schedule[cycleDay];
   const daysLeft = daysBetween(date, activeMesocycle.endDate);
 
@@ -82,6 +83,22 @@ export function TodayPage() {
           }}
         >
           insert rest day {isToday ? "today" : "here"}
+        </button>
+      )}
+
+      {isInsertedRest && (
+        <button
+          className="text-btn rest-day-btn"
+          onClick={() => {
+            const prompt = isToday
+              ? "remove this rest day today? pulls every future day back by one."
+              : "remove this rest day? pulls every future day back by one.";
+            if (confirm(prompt)) {
+              removeRestDay(date);
+            }
+          }}
+        >
+          remove rest day {isToday ? "today" : "here"}
         </button>
       )}
 
