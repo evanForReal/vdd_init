@@ -795,6 +795,37 @@ body.sheet-open .app-main {
   letter-spacing: 0.05em;
 }
 
+.artwork-bookmark {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 8px;
+  border-radius: 999px;
+  background: rgba(15, 12, 10, 0.55);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: rgba(243, 236, 224, 0.75);
+  cursor: pointer;
+}
+
+.artwork-bookmark input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.artwork-bookmark:has(input:checked) {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
 /* ---------- Home ---------- */
 
 .home-shell {
@@ -870,6 +901,163 @@ body.sheet-open .app-main {
    A future second orb in this column stacks below with the same gap. */
 .orb-col-offset {
   padding-top: 80px;
+}
+
+.home-menu {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top));
+  right: 14px;
+  z-index: 10;
+}
+
+.home-menu-btn {
+  background: rgba(21, 18, 15, 0.4);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--text);
+  backdrop-filter: blur(4px);
+}
+
+.home-menu-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 29;
+}
+
+.home-menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lift);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  min-width: 172px;
+  overflow: hidden;
+}
+
+.home-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.home-menu-item:active {
+  background: var(--surface-2);
+}
+
+.home-menu-icon {
+  width: 17px;
+  height: 17px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* ---------- Bookmarked art page ---------- */
+
+.bookmarks-header {
+  margin-bottom: 18px;
+}
+
+.bookmarks-header h1 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.bookmarks-count {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 4px 0 0;
+}
+
+.bookmarks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.bookmarks-tile {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-lift);
+  background: var(--surface);
+}
+
+.bookmarks-tile-tap {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.bookmarks-tile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.bookmarks-tile-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(155deg, #40506b 0%, #202a3a 55%, #14100c 100%);
+}
+
+.bookmarks-tile-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgba(15, 12, 10, 0.55);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+
+.bookmarks-tile-remove input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.bookmarks-tile-caption {
+  padding: 8px 10px 10px;
+}
+
+.bookmarks-tile-title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.bookmarks-tile-meta {
+  font-size: 10.5px;
+  color: var(--text-dim);
+  margin-top: 2px;
 }
 
 .orb {
