@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { ArtworkPanel } from "./components/ArtworkPanel";
+import { HomeMenu } from "./components/HomeMenu";
+import { BookmarkedArtPage } from "./components/BookmarkedArtPage";
 import { todayISO } from "./utils/date";
 
 export function Home({
@@ -14,12 +17,19 @@ export function Home({
   onEnterBetterD: () => void;
   onEnterBlog: () => void;
 }) {
+  const [showBookmarks, setShowBookmarks] = useState(false);
+
+  if (showBookmarks) {
+    return <BookmarkedArtPage onBack={() => setShowBookmarks(false)} />;
+  }
+
   return (
     <div className="home-shell">
       <div className="home-art-backdrop">
         <ArtworkPanel seed={`home-${todayISO()}`} variant="hero" minHeight="100%" />
       </div>
       <div className="home-scrim" />
+      <HomeMenu onBookmarkedArt={() => setShowBookmarks(true)} />
       <div className="home-content">
         <h1 className="home-title">the right tracking app</h1>
         <div className="orb-grid">

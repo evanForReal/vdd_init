@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { ArtCategory } from "../data/artworks";
 import { artworkImageUrl, pickArtwork } from "../data/artworks";
 import { Lightbox } from "./Lightbox";
+import { useBookmarks } from "../context/BookmarksContext";
 
 // A deterministic per-mount palette so the fallback card (used when the
 // image can't load) still feels like a specific painting, not an error.
@@ -29,10 +30,16 @@ export function ArtworkPanel({
   const fullImageUrl = useMemo(() => artworkImageUrl(artwork, 2400), [artwork]);
   const [failed, setFailed] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const { isBookmarked, toggleBookmark } = useBookmarks();
+  const bookmarked = isBookmarked(artwork.id);
   const wash = FALLBACK_WASHES[
     Math.abs(seed.length + artwork.id.length) % FALLBACK_WASHES.length
   ];
   const credit = `${artwork.title} — ${artwork.artist}, ${artwork.year} · ${artwork.museum}`;
+  // Bookmarking only makes sense where a panel reads as "one specific
+  // painting" — the hero backdrop is decorative scenery behind the home
+  // orbs, and the raw blog variant is deliberately sparse, so both skip it.
+  const showBookmark = variant === "panel";
 
   return (
     <div
@@ -72,6 +79,26 @@ export function ArtworkPanel({
         </div>
       )}
       <div className="artwork-panel-scrim" />
+
+      {showBookmark && (
+        <label
+          className="artwork-bookmark"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <input
+            type="checkbox"
+            checked={bookmarked}
+            onChange={() => toggleBookmark(artwork.id)}
+            aria-label={
+              bookmarked
+                ? `remove ${artwork.title} from bookmarked art`
+                : `bookmark ${artwork.title}`
+            }
+          />
+          <span>{bookmarked ? "bookmarked" : "bookmark"}</span>
+        </label>
+      )}
+
       <div className="artwork-panel-credit">
         <div className="artwork-panel-title">{artwork.title}</div>
         <div className="artwork-panel-meta">
