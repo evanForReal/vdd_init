@@ -30,6 +30,7 @@ interface AppContextValue {
   renameExercise: (cycleDay: CycleDay, exerciseId: string, name: string) => void;
   insertRestDay: (date: string) => void;
   removeRestDay: (date: string) => void;
+  skipRestDay: (date: string) => void;
   startMesocycleToday: () => void;
   getLogFor: (date: string, exerciseId: string) => SessionLog | undefined;
   getLastLogBefore: (
@@ -67,6 +68,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       endDate: addMonths(startDate, 3),
       schedule: { u1: [], l1: [], u2: [], l2: [] },
       insertedRestDates: [],
+      skippedRestDates: [],
     };
     setState((s) => ({
       ...s,
@@ -147,6 +149,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }
 
+  // For a day that's a *naturally*-occurring pattern rest (not one the user
+  // inserted) — converts it into a workout day. Symmetric to insertRestDay,
+  // but pulling instead of pushing: every later date's cycle day slides back
+  // by one, same as removeRestDay, just starting from the opposite kind of
+  // rest day.
+  function skipRestDay(date: string) {
+    setState((s) => ({
+      ...s,
+      mesocycles: s.mesocycles.map((m) =>
+        m.id === s.activeMesocycleId && !m.skippedRestDates.includes(date)
+          ? { ...m, skippedRestDates: [...m.skippedRestDates, date] }
+          : m
+      ),
+    }));
+  }
+
   function startMesocycleToday() {
     const today = todayISO();
     setState((s) => ({
@@ -158,6 +176,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               startDate: today,
               endDate: addMonths(today, 3),
               insertedRestDates: [],
+              skippedRestDates: [],
               cycleStartConfirmed: true,
             }
           : m
@@ -211,6 +230,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     renameExercise,
     insertRestDay,
     removeRestDay,
+    skipRestDay,
     startMesocycleToday,
     getLogFor,
     getLastLogBefore,

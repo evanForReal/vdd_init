@@ -20,6 +20,9 @@ function normalizeMesocycle(m: Partial<Mesocycle>): Mesocycle {
     insertedRestDates: Array.isArray(m.insertedRestDates)
       ? m.insertedRestDates
       : [],
+    skippedRestDates: Array.isArray(m.skippedRestDates)
+      ? m.skippedRestDates
+      : [],
     cycleStartConfirmed: m.cycleStartConfirmed ?? false,
     schedule: {
       u1: Array.isArray(schedule.u1) ? schedule.u1 : [],

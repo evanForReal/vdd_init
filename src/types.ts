@@ -25,6 +25,8 @@ export interface Mesocycle {
   schedule: Schedule;
   /** Dates where the user manually inserted an extra rest day, shifting the cycle for every later date. */
   insertedRestDates: string[];
+  /** Dates that are a naturally-occurring pattern rest but were converted to a workout day, pulling the cycle for every later date back by one. */
+  skippedRestDates: string[];
   /** Whether "start mesocycle today" has already been used — meant to fire once per mesocycle. */
   cycleStartConfirmed?: boolean;
 }
